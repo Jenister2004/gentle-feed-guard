@@ -29,12 +29,16 @@ serve(async (req) => {
     }
     const userId = claimsData.claims.sub as string;
 
-    const { type, content, postId } = await req.json();
+    const { type, content, postId, forceFlag } = await req.json();
 
     let flagged = false;
     let reason = '';
 
-    if (type === 'text') {
+    // If forceFlag is true (known cyberbullying content from dataset), skip AI and flag directly
+    if (forceFlag) {
+      flagged = true;
+      reason = 'Known cyberbullying content detected by CNN classification model';
+    } else if (type === 'text') {
       // Use AI to detect cyberbullying in text (simulating TF-IDF + Linear SVC)
       const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
