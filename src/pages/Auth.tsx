@@ -49,7 +49,7 @@ export default function Auth() {
           <CardContent className="pt-8 pb-6 px-10">
             <div className="flex items-center justify-center gap-2 mb-2">
               <Camera className="h-8 w-8 text-primary" />
-              <h1 className="text-3xl font-bold instagram-gradient-text">SafeGram</h1>
+              <h1 className="text-3xl font-bold instagram-gradient-text">Insta Lite</h1>
             </div>
             <p className="text-center text-muted-foreground text-sm mb-6 flex items-center justify-center gap-1">
               <Shield className="h-3.5 w-3.5" /> AI-powered safe social platform

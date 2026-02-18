@@ -14,7 +14,7 @@ export default function AppHeader() {
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
           <Camera className="h-6 w-6 text-primary" />
-          <span className="text-xl font-bold instagram-gradient-text">SafeGram</span>
+          <span className="text-xl font-bold instagram-gradient-text">Insta Lite</span>
         </Link>
         <div className="flex items-center gap-4">
           <Link to="/" className="hover:opacity-60 transition-opacity">

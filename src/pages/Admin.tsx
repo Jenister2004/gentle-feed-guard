@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Shield, Users, Image, MessageSquare, AlertTriangle, Ban, AlertCircle, Loader2 } from 'lucide-react';
+import { Shield, Users, Image, MessageSquare, AlertTriangle, Ban, AlertCircle, Loader2, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 import AppHeader from '@/components/layout/AppHeader';
@@ -87,6 +87,12 @@ export default function Admin() {
   const markReviewed = async (id: string) => {
     const { error } = await supabase.from('flagged_content').update({ reviewed: true }).eq('id', id);
     if (!error) { toast.success('Marked as reviewed'); loadFlagged(); }
+  };
+
+  const adminDeleteComment = async (id: string) => {
+    const { error } = await supabase.from('comments').update({ is_deleted: true }).eq('id', id);
+    if (!error) { toast.success('Comment deleted'); loadComments(); }
+    else toast.error('Failed to delete comment');
   };
 
   if (authLoading) return <div className="flex min-h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
@@ -262,20 +268,34 @@ export default function Admin() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Content</TableHead>
+                      <TableHead>Type</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Time</TableHead>
+                      <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {comments.map(c => (
                       <TableRow key={c.id}>
-                        <TableCell className="max-w-[300px] truncate">{c.content}</TableCell>
+                        <TableCell className="max-w-[300px] truncate">
+                          {c.gif_url ? (
+                            <img src={c.gif_url} alt="GIF comment" className="h-12 w-12 object-cover rounded" />
+                          ) : c.content}
+                        </TableCell>
+                        <TableCell><Badge variant="outline">{c.gif_url ? 'GIF' : 'Text'}</Badge></TableCell>
                         <TableCell>
                           {c.is_deleted ? <Badge variant="destructive">Deleted</Badge> :
                            c.is_flagged ? <Badge className="bg-warning text-warning-foreground">Flagged</Badge> :
                            <Badge className="bg-success text-success-foreground">Active</Badge>}
                         </TableCell>
                         <TableCell className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(c.created_at), { addSuffix: true })}</TableCell>
+                        <TableCell>
+                          {!c.is_deleted && (
+                            <Button size="sm" variant="destructive" onClick={() => adminDeleteComment(c.id)}>
+                              <Trash2 className="h-3 w-3 mr-1" /> Delete
+                            </Button>
+                          )}
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
