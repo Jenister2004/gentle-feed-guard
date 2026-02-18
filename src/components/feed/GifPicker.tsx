@@ -23,8 +23,14 @@ const GIF_DATASET = {
   ],
 };
 
+interface GifData {
+  url: string;
+  label: string;
+  flagged?: boolean;
+}
+
 interface GifPickerProps {
-  onSelect: (gifUrl: string) => void;
+  onSelect: (gifUrl: string, isFlaggedInDataset: boolean) => void;
   disabled?: boolean;
 }
 
@@ -41,8 +47,8 @@ export default function GifPicker({ onSelect, disabled }: GifPickerProps) {
     ? allGifs.filter(g => g.label.toLowerCase().includes(search.toLowerCase()))
     : allGifs;
 
-  const handleSelect = (gif: typeof allGifs[0]) => {
-    onSelect(gif.url);
+  const handleSelect = (gif: GifData) => {
+    onSelect(gif.url, !!gif.flagged);
     setOpen(false);
   };
 

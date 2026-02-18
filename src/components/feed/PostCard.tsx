@@ -121,17 +121,28 @@ export default function PostCard({ post, posterUsername }: { post: Post; posterU
     }
   };
 
-  const submitGif = async (gifUrl: string) => {
+  const submitGif = async (gifUrl: string, isFlaggedInDataset: boolean) => {
     if (!user || submitting) return;
     setSubmitting(true);
     try {
-      // Moderate GIF using CNN simulation
+      // If the GIF is from the known cyberbullying dataset, auto-block it immediately
+      if (isFlaggedInDataset) {
+        // Log to flagged_content via moderation edge function
+        await supabase.functions.invoke('moderate-content', {
+          body: { type: 'gif', content: gifUrl, userId: user.id, postId: post.id, forceFlag: true },
+        });
+        toast.error('⚠️ This GIF was detected as cyberbullying by CNN analysis and has been automatically deleted.', { duration: 5000 });
+        setSubmitting(false);
+        return;
+      }
+
+      // Moderate unknown GIFs using CNN simulation
       const resp = await supabase.functions.invoke('moderate-content', {
         body: { type: 'image', content: gifUrl, userId: user.id, postId: post.id },
       });
 
       if (resp.data?.flagged) {
-        toast.error('⚠️ This GIF was detected as harmful and has been blocked.', { duration: 5000 });
+        toast.error('⚠️ This GIF was detected as harmful by CNN analysis and has been automatically deleted.', { duration: 5000 });
         setSubmitting(false);
         return;
       }
