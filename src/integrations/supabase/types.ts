@@ -19,6 +19,7 @@ export type Database = {
           content: string
           created_at: string
           flag_reason: string | null
+          gif_url: string | null
           id: string
           is_deleted: boolean
           is_flagged: boolean
@@ -29,6 +30,7 @@ export type Database = {
           content: string
           created_at?: string
           flag_reason?: string | null
+          gif_url?: string | null
           id?: string
           is_deleted?: boolean
           is_flagged?: boolean
@@ -39,6 +41,7 @@ export type Database = {
           content?: string
           created_at?: string
           flag_reason?: string | null
+          gif_url?: string | null
           id?: string
           is_deleted?: boolean
           is_flagged?: boolean

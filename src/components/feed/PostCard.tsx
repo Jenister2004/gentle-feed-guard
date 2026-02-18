@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Heart, MessageCircle, MoreHorizontal, Trash2, AlertTriangle } from 'lucide-react';
+import { Heart, MessageCircle, Trash2, AlertTriangle } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
+import GifPicker from '@/components/feed/GifPicker';
 
 interface Post {
   id: string;
@@ -20,6 +21,7 @@ interface Post {
 interface Comment {
   id: string;
   content: string;
+  gif_url: string | null;
   user_id: string;
   created_at: string;
   is_flagged: boolean;
@@ -39,9 +41,7 @@ export default function PostCard({ post, posterUsername }: { post: Post; posterU
 
   useEffect(() => {
     if (!user) return;
-    // Check if liked
     supabase.from('likes').select('id').eq('post_id', post.id).eq('user_id', user.id).maybeSingle().then(({ data }) => setLiked(!!data));
-    // Get like count
     supabase.from('likes').select('id', { count: 'exact', head: true }).eq('post_id', post.id).then(({ count }) => setLikeCount(count || 0));
   }, [post.id, user]);
 
@@ -58,7 +58,6 @@ export default function PostCard({ post, posterUsername }: { post: Post; posterU
       .eq('is_deleted', false)
       .order('created_at', { ascending: true });
     if (data) {
-      // Fetch usernames for comments
       const userIds = [...new Set(data.map(c => c.user_id))];
       const { data: profiles } = await supabase.from('profiles').select('user_id, username').in('user_id', userIds);
       const profileMap = Object.fromEntries((profiles || []).map(p => [p.user_id, p.username]));
@@ -81,12 +80,21 @@ export default function PostCard({ post, posterUsername }: { post: Post; posterU
     }
   };
 
+  const deleteComment = async (commentId: string) => {
+    const { error } = await supabase.from('comments').update({ is_deleted: true }).eq('id', commentId);
+    if (!error) {
+      toast.success('Comment deleted');
+      loadComments();
+    } else {
+      toast.error('Failed to delete comment');
+    }
+  };
+
   const submitComment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newComment.trim() || !user || submitting) return;
     setSubmitting(true);
     try {
-      // Call moderation edge function
       const resp = await supabase.functions.invoke('moderate-content', {
         body: { type: 'text', content: newComment, userId: user.id, postId: post.id },
       });
@@ -98,7 +106,6 @@ export default function PostCard({ post, posterUsername }: { post: Post; posterU
         return;
       }
 
-      // Insert comment
       const { error } = await supabase.from('comments').insert({
         post_id: post.id,
         user_id: user.id,
@@ -109,6 +116,36 @@ export default function PostCard({ post, posterUsername }: { post: Post; posterU
       loadComments();
     } catch (err: any) {
       toast.error('Failed to post comment');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const submitGif = async (gifUrl: string) => {
+    if (!user || submitting) return;
+    setSubmitting(true);
+    try {
+      // Moderate GIF using CNN simulation
+      const resp = await supabase.functions.invoke('moderate-content', {
+        body: { type: 'image', content: gifUrl, userId: user.id, postId: post.id },
+      });
+
+      if (resp.data?.flagged) {
+        toast.error('⚠️ This GIF was detected as harmful and has been blocked.', { duration: 5000 });
+        setSubmitting(false);
+        return;
+      }
+
+      const { error } = await supabase.from('comments').insert({
+        post_id: post.id,
+        user_id: user.id,
+        content: '[GIF]',
+        gif_url: gifUrl,
+      });
+      if (error) throw error;
+      loadComments();
+    } catch (err: any) {
+      toast.error('Failed to post GIF');
     } finally {
       setSubmitting(false);
     }
@@ -162,15 +199,31 @@ export default function PostCard({ post, posterUsername }: { post: Post; posterU
         <div className="px-4 pb-3 border-t border-border mt-2 pt-2">
           <div className="max-h-48 overflow-y-auto space-y-2 mb-3">
             {comments.map(c => (
-              <div key={c.id} className="text-sm">
-                <span className="font-semibold">{c.profile?.username}</span>{' '}
-                {c.content}
-                <span className="text-xs text-muted-foreground ml-2">{formatDistanceToNow(new Date(c.created_at), { addSuffix: true })}</span>
+              <div key={c.id} className="text-sm group flex items-start gap-1">
+                <div className="flex-1">
+                  <span className="font-semibold">{c.profile?.username}</span>{' '}
+                  {c.gif_url ? (
+                    <img src={c.gif_url} alt="GIF" className="mt-1 rounded max-w-[200px] max-h-[150px]" />
+                  ) : (
+                    c.content
+                  )}
+                  <span className="text-xs text-muted-foreground ml-2">{formatDistanceToNow(new Date(c.created_at), { addSuffix: true })}</span>
+                </div>
+                {user && user.id === c.user_id && (
+                  <button
+                    onClick={() => deleteComment(c.id)}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive p-1"
+                    title="Delete comment"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                )}
               </div>
             ))}
             {comments.length === 0 && <p className="text-sm text-muted-foreground">No comments yet.</p>}
           </div>
-          <form onSubmit={submitComment} className="flex gap-2">
+          <form onSubmit={submitComment} className="flex gap-2 items-center">
+            <GifPicker onSelect={submitGif} disabled={submitting} />
             <Input
               value={newComment}
               onChange={e => setNewComment(e.target.value)}
