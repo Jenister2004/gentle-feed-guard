@@ -1,12 +1,11 @@
 import { useAuth } from '@/hooks/useAuth';
 import { Link, useNavigate } from 'react-router-dom';
-import { Camera, Shield, Home, LogOut, User } from 'lucide-react';
+import { Camera, Home, LogOut, User, AlertTriangle } from 'lucide-react';
 import CreatePost from '@/components/feed/CreatePost';
-import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 export default function AppHeader() {
-  const { user, isAdmin, profile, signOut } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
 
   return (
@@ -21,11 +20,9 @@ export default function AppHeader() {
             <Home className="h-6 w-6" />
           </Link>
           <CreatePost onCreated={() => navigate('/')} />
-          {isAdmin && (
-            <Link to="/admin" className="hover:opacity-60 transition-opacity" title="Admin Dashboard">
-              <Shield className="h-6 w-6" />
-            </Link>
-          )}
+          <Link to="/admin-login" className="hover:opacity-60 transition-opacity text-warning" title="Admin Panel">
+            <AlertTriangle className="h-6 w-6" />
+          </Link>
           <Link to="/profile" className="hover:opacity-60 transition-opacity">
             <Avatar className="h-7 w-7">
               <AvatarFallback className="text-xs font-semibold bg-muted">
