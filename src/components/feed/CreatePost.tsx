@@ -37,7 +37,7 @@ export default function CreatePost({ onCreated }: { onCreated: () => void }) {
 
       // Moderate image
       const moderationResp = await supabase.functions.invoke('moderate-content', {
-        body: { type: 'image', content: urlData.publicUrl, userId: user.id },
+        body: { type: 'image', content: urlData.publicUrl, userId: user.id, checkEmbeddedText: true },
       });
 
       if (moderationResp.data?.flagged) {
