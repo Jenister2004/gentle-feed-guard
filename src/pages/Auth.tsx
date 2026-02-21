@@ -38,11 +38,15 @@ export default function Auth() {
           setSubmitting(false);
           return;
         }
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/reset-password`,
+        const { data, error } = await supabase.functions.invoke('reset-password', {
+          body: { email, password },
         });
         if (error) throw error;
-        toast.success('Password reset link sent to your email! Check your inbox.');
+        if (data?.error) throw new Error(data.error);
+        toast.success('Password updated successfully! You can now log in.');
+        setMode('login');
+        setPassword('');
+        setConfirmPassword('');
       } else if (mode === 'login') {
         const { error } = await signIn(email, password);
         if (error) throw error;
