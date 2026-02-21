@@ -48,7 +48,7 @@ export default function Feed() {
   );
 
   return (
-    <div className="min-h-screen bg-secondary/30">
+    <div className="min-h-screen bg-secondary/30 animate-page-enter">
       <AppHeader />
       <main className="max-w-lg mx-auto px-4 pt-16 pb-8">
         {posts.length === 0 ? (
