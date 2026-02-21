@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import PostCard from '@/components/feed/PostCard';
 import CreatePost from '@/components/feed/CreatePost';
 import AppHeader from '@/components/layout/AppHeader';
+import StoryBar from '@/components/stories/StoryBar';
 import { Loader2 } from 'lucide-react';
 
 export default function Feed() {
@@ -51,6 +52,7 @@ export default function Feed() {
     <div className="min-h-screen bg-secondary/30 animate-page-enter">
       <AppHeader />
       <main className="max-w-lg mx-auto px-4 pt-16 pb-8">
+        <StoryBar />
         {posts.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-muted-foreground text-lg">No posts yet.</p>

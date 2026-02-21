@@ -62,7 +62,7 @@ serve(async (req) => {
     }
     const userId = claimsData.claims.sub as string;
 
-    const { type, content, postId, forceFlag } = await req.json();
+    const { type, content, postId, forceFlag, checkEmbeddedText } = await req.json();
 
     let flagged = false;
     let reason = '';
@@ -128,7 +128,23 @@ Be strict: flag content that is clearly bullying, threatening, harassing, or con
         }
       }
     } else if (type === 'image') {
-      // Use AI to analyze image for harmful content (simulating CNN)
+      // Use AI to analyze image for harmful content AND embedded text (simulating CNN)
+      const systemPrompt = checkEmbeddedText
+        ? `You are an image content moderation system that simulates CNN-based harmful content detection. Analyze the given image and determine if it contains:
+1. Harmful, bullying, violent, explicit, or inappropriate visual content
+2. ANY embedded/overlaid text in the image - read all text visible in the image and check if it contains cyberbullying, hate speech, harassment, threats, slurs, or abusive language
+
+If the image contains text with cyberbullying or offensive content, it MUST be flagged even if the image itself looks normal.
+
+Respond ONLY with a JSON object (no markdown, no code blocks):
+{"flagged": true/false, "reason": "brief explanation", "confidence": 0.0-1.0, "embedded_text": "any text found in the image or empty string"}`
+        : `You are an image content moderation system that simulates CNN-based harmful content detection. Analyze the given image URL and determine if it contains harmful, bullying, violent, explicit, or inappropriate content.
+
+Respond ONLY with a JSON object (no markdown, no code blocks):
+{"flagged": true/false, "reason": "brief explanation", "confidence": 0.0-1.0}
+
+Be reasonable - only flag genuinely harmful content.`;
+
       const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -138,19 +154,13 @@ Be strict: flag content that is clearly bullying, threatening, harassing, or con
         body: JSON.stringify({
           model: "google/gemini-3-flash-preview",
           messages: [
-            {
-              role: "system",
-              content: `You are an image content moderation system that simulates CNN-based harmful content detection. Analyze the given image URL and determine if it contains harmful, bullying, violent, explicit, or inappropriate content.
-
-Respond ONLY with a JSON object (no markdown, no code blocks):
-{"flagged": true/false, "reason": "brief explanation", "confidence": 0.0-1.0}
-
-Be reasonable - only flag genuinely harmful content.`
-            },
+            { role: "system", content: systemPrompt },
             {
               role: "user",
               content: [
-                { type: "text", text: "Analyze this image for harmful content:" },
+                { type: "text", text: checkEmbeddedText
+                  ? "Analyze this image for harmful content AND read any embedded/overlaid text to check for cyberbullying:"
+                  : "Analyze this image for harmful content:" },
                 { type: "image_url", image_url: { url: content } }
               ]
             }
@@ -165,8 +175,17 @@ Be reasonable - only flag genuinely harmful content.`
         try {
           const cleaned = aiText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
           const result = JSON.parse(cleaned);
-          flagged = result.flagged === true && (result.confidence || 0) > 0.7;
-          reason = result.reason || 'Harmful image detected';
+          flagged = result.flagged === true && (result.confidence || 0) > 0.6;
+          reason = result.reason || 'Harmful content detected';
+          
+          // If embedded text was found, also check it against the bad word list
+          if (!flagged && result.embedded_text) {
+            const textCheck = containsBadWord(result.embedded_text);
+            if (textCheck.found) {
+              flagged = true;
+              reason = `Cyberbullying text detected in image: contains "${textCheck.word}"`;
+            }
+          }
         } catch {
           flagged = false;
         }

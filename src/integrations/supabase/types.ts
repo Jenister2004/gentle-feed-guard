@@ -198,6 +198,39 @@ export type Database = {
         }
         Relationships: []
       }
+      stories: {
+        Row: {
+          caption: string | null
+          created_at: string
+          expires_at: string
+          flag_reason: string | null
+          id: string
+          image_url: string
+          is_flagged: boolean
+          user_id: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          expires_at?: string
+          flag_reason?: string | null
+          id?: string
+          image_url: string
+          is_flagged?: boolean
+          user_id: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          expires_at?: string
+          flag_reason?: string | null
+          id?: string
+          image_url?: string
+          is_flagged?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
