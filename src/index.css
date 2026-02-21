@@ -90,3 +90,56 @@
     z-index: -1;
   }
 }
+
+/* Global click/tap animation for all interactive elements */
+button,
+a,
+[role="button"],
+input[type="submit"],
+.clickable {
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.15s ease, box-shadow 0.2s ease;
+}
+
+button:active,
+a:active,
+[role="button"]:active,
+input[type="submit"]:active,
+.clickable:active {
+  transform: scale(0.95);
+  opacity: 0.85;
+}
+
+/* Smooth focus animation for inputs */
+input:focus,
+textarea:focus,
+select:focus {
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+/* Card hover lift */
+.card-animate {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease;
+}
+.card-animate:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px -8px hsl(var(--foreground) / 0.1);
+}
+
+/* Page enter animation */
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-page-enter {
+  animation: page-enter 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* Icon bounce on click */
+@keyframes icon-bounce {
+  0%, 100% { transform: scale(1); }
+  40% { transform: scale(0.85); }
+  70% { transform: scale(1.1); }
+}
+.icon-click:active svg {
+  animation: icon-bounce 0.35s ease;
+}

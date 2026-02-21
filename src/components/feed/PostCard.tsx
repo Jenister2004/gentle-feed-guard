@@ -163,7 +163,7 @@ export default function PostCard({ post, posterUsername }: { post: Post; posterU
   };
 
   return (
-    <div className="bg-card border border-border rounded-lg mb-4">
+    <div className="bg-card border border-border rounded-lg mb-4 card-animate animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3">
         <div className="flex items-center gap-3">
@@ -185,10 +185,10 @@ export default function PostCard({ post, posterUsername }: { post: Post; posterU
       {/* Actions */}
       <div className="px-4 pt-3 pb-1">
         <div className="flex items-center gap-4">
-          <button onClick={toggleLike} className="hover:opacity-60 transition-opacity">
+          <button onClick={toggleLike} className="icon-click hover:opacity-60 transition-opacity">
             <Heart className={`h-6 w-6 ${liked ? 'fill-destructive text-destructive' : ''} ${animateHeart ? 'animate-heart-pop' : ''}`} />
           </button>
-          <button onClick={() => setShowComments(!showComments)} className="hover:opacity-60 transition-opacity">
+          <button onClick={() => setShowComments(!showComments)} className="icon-click hover:opacity-60 transition-opacity">
             <MessageCircle className="h-6 w-6" />
           </button>
         </div>

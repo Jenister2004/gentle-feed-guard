@@ -16,21 +16,21 @@ export default function AppHeader() {
           <span className="text-xl font-bold instagram-gradient-text">Insta Lite</span>
         </Link>
         <div className="flex items-center gap-4">
-          <Link to="/" className="hover:opacity-60 transition-opacity">
+          <Link to="/" className="icon-click hover:opacity-60 transition-opacity">
             <Home className="h-6 w-6" />
           </Link>
           <CreatePost onCreated={() => navigate('/')} />
-          <Link to="/admin-login" className="hover:opacity-60 transition-opacity text-warning" title="Admin Panel">
+          <Link to="/admin-login" className="icon-click hover:opacity-60 transition-opacity text-warning" title="Admin Panel">
             <AlertTriangle className="h-6 w-6" />
           </Link>
-          <Link to="/profile" className="hover:opacity-60 transition-opacity">
+          <Link to="/profile" className="icon-click hover:opacity-60 transition-opacity">
             <Avatar className="h-7 w-7">
               <AvatarFallback className="text-xs font-semibold bg-muted">
                 {profile?.username?.[0]?.toUpperCase() || <User className="h-4 w-4" />}
               </AvatarFallback>
             </Avatar>
           </Link>
-          <button onClick={signOut} className="hover:opacity-60 transition-opacity text-muted-foreground" title="Log out">
+          <button onClick={signOut} className="icon-click hover:opacity-60 transition-opacity text-muted-foreground" title="Log out">
             <LogOut className="h-5 w-5" />
           </button>
         </div>
