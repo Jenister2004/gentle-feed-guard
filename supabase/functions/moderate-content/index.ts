@@ -8,25 +8,68 @@ const corsHeaders = {
 
 // Profanity / bad word list for instant blocking
 const BAD_WORDS = [
-  'fuck', 'fck', 'fuk', 'f*ck', 'f**k', 'fking', 'fucking', 'fucker', 'fucked',
-  'shit', 'sh*t', 'sh1t', 'bullshit',
-  'bitch', 'b*tch', 'b1tch', 'bitches',
-  'ass', 'asshole', 'a**hole', 'a$$',
+  // Classic profanity
+  'fuck', 'fck', 'fuk', 'f*ck', 'f**k', 'fking', 'fucking', 'fucker', 'fucked', 'fked',
+  'shit', 'sh*t', 'sh1t', 'bullshit', 'shitty',
+  'bitch', 'b*tch', 'b1tch', 'bitches', 'biatch',
+  'ass', 'asshole', 'a**hole', 'a$$', 'asswipe',
   'damn', 'dammit',
-  'dick', 'd*ck', 'dickhead',
-  'pussy', 'p*ssy',
+  'dick', 'd*ck', 'dickhead', 'dckhead',
+  'pussy', 'p*ssy', 'puss',
   'bastard', 'bstrd',
-  'whore', 'wh*re', 'slut', 'sl*t',
-  'nigga', 'n*gga', 'nigger', 'n*gger', 'n1gga', 'n1gger',
-  'retard', 'retarded', 'r*tard',
+  'whore', 'wh*re', 'slut', 'sl*t', 'thot', 'th0t',
+  'nigga', 'n*gga', 'nigger', 'n*gger', 'n1gga', 'n1gger', 'nibba',
+  'retard', 'retarded', 'r*tard', 'retrded',
   'faggot', 'fag', 'f*g', 'f*ggot',
   'cunt', 'c*nt',
   'motherfucker', 'mf', 'mofo', 'motherf*cker', 'mfer',
-  'stfu', 'gtfo', 'kys', 'kill yourself',
-  'ugly', 'fatty', 'fatso', 'pig', 'cow', 'whale',
-  'die', 'go die', 'drop dead',
-  'trash', 'garbage', 'worthless', 'pathetic', 'loser',
-  'idiot', 'moron', 'stupid', 'dumb',
+  'stfu', 'gtfo', 'kys', 'kill yourself', 'kms',
+  
+  // Body shaming / appearance
+  'ugly', 'fatty', 'fatso', 'pig', 'cow', 'whale', 'lard', 'obese',
+  'anorexic', 'skeleton', 'stick figure', 'flat', 'midget', 'manlet',
+  'butterface', 'fugly', 'hideous', 'gross looking',
+  
+  // Violence / threats
+  'die', 'go die', 'drop dead', 'hope you die', 'neck yourself',
+  'slit your wrists', 'jump off', 'hang yourself', 'end yourself',
+  
+  // General insults
+  'trash', 'garbage', 'worthless', 'pathetic', 'loser', 'lame',
+  'idiot', 'moron', 'stupid', 'dumb', 'braindead', 'brain dead',
+  'clown', 'joke', 'disgrace', 'waste of space', 'nobody',
+  'creep', 'weirdo', 'freak', 'psycho', 'nutjob', 'delusional',
+  
+  // Gen Z / internet slang bullying
+  'ratio', 'ratiod', 'cope', 'seethe', 'mald', 'malding',
+  'skill issue', 'no cap you ugly', 'mid', 'npc', 'npc behavior',
+  'pick me', 'pick me girl', 'pick me boy', 'simp',
+  'incel', 'femcel', 'beta', 'beta male', 'cuck', 'soy boy', 'soyboy',
+  'touch grass', 'chronically online',
+  'delulu', 'cringe', 'ick', 'flop', 'flop era',
+  'caught in 4k', 'main character syndrome',
+  'karen', 'boomer', 'ok boomer',
+  'sus', 'sussy', 'cap', 'no cap trash',
+  'L take', 'huge L', 'massive L', 'you fell off',
+  'deadass ugly', 'fr ugly', 'lowkey ugly', 'highkey ugly',
+  'ate nothing', 'served nothing', 'gave nothing',
+  'oomf ugly', 'mutuals hate you',
+  'unalive', 'unalive yourself', 'go unalive',
+  'giving pick me', 'giving cringe', 'giving desperate',
+  'clout chaser', 'attention seeker', 'try hard', 'tryhard',
+  'dog water', 'dogwater', 'bot', 'ur a bot',
+  'no rizz', 'zero rizz', 'negative rizz',
+  'get rekt', 'rekt', 'owned', 'pwned',
+  'noob', 'n00b', 'scrub',
+  'weirdo behavior', 'creep behavior', 'predator',
+  'pedo', 'groomer',
+  'loner', 'no friends', 'nobody likes you', 'everyone hates you',
+  'go away', 'leave forever', 'disappear',
+  'not funny', 'unfunny', 'cringe af',
+  'poverty', 'broke boy', 'broke girl', 'poor kid',
+  'crusty', 'dusty', 'musty', 'ashy',
+  'ran through', 'for the streets', 'body count',
+  'yikes', 'embarrassing', 'embarrassment',
 ];
 
 function containsBadWord(text: string): { found: boolean; word: string } {

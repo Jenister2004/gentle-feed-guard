@@ -11,7 +11,7 @@ export default function Feed() {
   const { user } = useAuth();
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [profiles, setProfiles] = useState<Record<string, string>>({});
+  const [profiles, setProfiles] = useState<Record<string, { username: string; avatar_url: string | null }>>({});
 
   const loadPosts = async () => {
     const { data } = await supabase
@@ -23,8 +23,10 @@ export default function Feed() {
     if (data) {
       setPosts(data);
       const userIds = [...new Set(data.map(p => p.user_id))];
-      const { data: profs } = await supabase.from('profiles').select('user_id, username').in('user_id', userIds);
-      if (profs) setProfiles(Object.fromEntries(profs.map(p => [p.user_id, p.username])));
+      const { data: profs } = await supabase.from('profiles').select('user_id, username, avatar_url').in('user_id', userIds);
+      if (profs) {
+        setProfiles(Object.fromEntries(profs.map(p => [p.user_id, { username: p.username, avatar_url: p.avatar_url }])));
+      }
     }
     setLoading(false);
   };
@@ -60,7 +62,7 @@ export default function Feed() {
           </div>
         ) : (
           posts.map(post => (
-            <PostCard key={post.id} post={post} posterUsername={profiles[post.user_id] || 'unknown'} />
+            <PostCard key={post.id} post={post} posterUsername={profiles[post.user_id]?.username || 'unknown'} posterAvatarUrl={profiles[post.user_id]?.avatar_url} />
           ))
         )}
       </main>
