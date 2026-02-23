@@ -72,7 +72,35 @@ const BAD_WORDS = [
   'yikes', 'embarrassing', 'embarrassment',
 ];
 
+// Sexual / body-shaming emoji patterns
+const SEXUAL_EMOJIS = ['🍑', '🍆', '💦', '🌭', '🥒', '🍌', '👅', '🫦'];
+
+function containsSexualEmojiCombo(text: string): { found: boolean; reason: string } {
+  const found = SEXUAL_EMOJIS.filter(e => text.includes(e));
+  // If 2+ sexual emojis appear together, it's likely harassment
+  if (found.length >= 2) {
+    return { found: true, reason: `Sexual harassment emoji combination detected: ${found.join(' ')}` };
+  }
+  // Single 🍑 or 🍆 or 💦 with body-related words
+  if (found.length >= 1) {
+    const lower = text.toLowerCase();
+    const bodyWords = ['ass', 'butt', 'booty', 'dick', 'cock', 'cum', 'wet', 'suck', 'lick', 'ride', 'smash', 'bang', 'pound', 'thicc', 'thick', 'juicy', 'tight', 'hole', 'big', 'size', 'huge', 'small', 'tiny'];
+    for (const w of bodyWords) {
+      if (lower.includes(w)) {
+        return { found: true, reason: `Sexual body-shaming detected: ${found.join('')} with "${w}"` };
+      }
+    }
+  }
+  return { found: false, reason: '' };
+}
+
 function containsBadWord(text: string): { found: boolean; word: string } {
+  // First check sexual emoji combos
+  const emojiCheck = containsSexualEmojiCombo(text);
+  if (emojiCheck.found) {
+    return { found: true, word: emojiCheck.reason };
+  }
+
   const lower = text.toLowerCase().replace(/[^\w\s]/g, '').replace(/\d/g, '');
   for (const word of BAD_WORDS) {
     const cleanWord = word.replace(/[^\w\s]/g, '').replace(/\d/g, '');
