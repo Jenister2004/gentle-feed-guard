@@ -8,6 +8,9 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 import GifPicker from '@/components/feed/GifPicker';
+import EmojiPicker from '@/components/feed/EmojiPicker';
+import FollowButton from '@/components/profile/FollowButton';
+import { AvatarImage } from '@/components/ui/avatar';
 
 interface Post {
   id: string;
@@ -16,6 +19,12 @@ interface Post {
   caption: string | null;
   created_at: string;
   is_flagged: boolean;
+}
+
+interface PostCardProps {
+  post: Post;
+  posterUsername: string;
+  posterAvatarUrl?: string | null;
 }
 
 interface Comment {
@@ -29,7 +38,7 @@ interface Comment {
   profile?: { username: string };
 }
 
-export default function PostCard({ post, posterUsername }: { post: Post; posterUsername: string }) {
+export default function PostCard({ post, posterUsername, posterAvatarUrl }: PostCardProps) {
   const { user } = useAuth();
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
@@ -168,6 +177,7 @@ export default function PostCard({ post, posterUsername }: { post: Post; posterU
       <div className="flex items-center justify-between px-4 py-3">
         <div className="flex items-center gap-3">
           <Avatar className="h-8 w-8">
+            <AvatarImage src={posterAvatarUrl || undefined} alt={posterUsername} />
             <AvatarFallback className="instagram-gradient text-primary-foreground text-xs font-semibold">
               {posterUsername[0]?.toUpperCase()}
             </AvatarFallback>
@@ -175,6 +185,7 @@ export default function PostCard({ post, posterUsername }: { post: Post; posterU
           <span className="font-semibold text-sm">{posterUsername}</span>
           {post.is_flagged && <AlertTriangle className="h-4 w-4 text-warning" />}
         </div>
+        <FollowButton targetUserId={post.user_id} compact />
       </div>
 
       {/* Image */}
@@ -235,6 +246,7 @@ export default function PostCard({ post, posterUsername }: { post: Post; posterU
           </div>
           <form onSubmit={submitComment} className="flex gap-2 items-center">
             <GifPicker onSelect={submitGif} disabled={submitting} />
+            <EmojiPicker onSelect={(emoji) => setNewComment(prev => prev + emoji)} disabled={submitting} />
             <Input
               value={newComment}
               onChange={e => setNewComment(e.target.value)}
