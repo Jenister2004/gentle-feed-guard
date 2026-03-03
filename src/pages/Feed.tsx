@@ -5,10 +5,10 @@ import PostCard from '@/components/feed/PostCard';
 import CreatePost from '@/components/feed/CreatePost';
 import AppHeader from '@/components/layout/AppHeader';
 import StoryBar from '@/components/stories/StoryBar';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Ban } from 'lucide-react';
 
 export default function Feed() {
-  const { user } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [profiles, setProfiles] = useState<Record<string, { username: string; avatar_url: string | null }>>({});
@@ -49,6 +49,17 @@ export default function Feed() {
       <Loader2 className="h-8 w-8 animate-spin text-primary" />
     </div>
   );
+
+  if (profile?.is_banned) {
+    return (
+      <div className="flex min-h-screen items-center justify-center flex-col gap-4 p-4">
+        <Ban className="h-16 w-16 text-destructive" />
+        <h1 className="text-2xl font-bold text-destructive">Account Banned</h1>
+        <p className="text-muted-foreground text-center max-w-md">Your account has been banned for violating community guidelines. You can no longer access this platform.</p>
+        <button onClick={signOut} className="text-sm text-primary hover:underline mt-2">Sign Out</button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-secondary/30 animate-page-enter">

@@ -70,6 +70,21 @@ const BAD_WORDS = [
   'crusty', 'dusty', 'musty', 'ashy',
   'ran through', 'for the streets', 'body count',
   'yikes', 'embarrassing', 'embarrassment',
+
+  // Malayalam bad words and insults
+  'thendi', 'thevidiya', 'patti', 'myru', 'myran', 'thayoli',
+  'kunna', 'pooru', 'poorimone', 'pannimone', 'thallayoli',
+  'kundichori', 'vedi', 'vediya', 'myre', 'poda', 'podi',
+  'kandaroli', 'oombu', 'oombikko', 'chekkan', 'kuntham',
+  'nayinte mone', 'nayinte mol', 'panni', 'paraya',
+  'enthada thendi', 'poda patti', 'po myre', 'nee oru thendi',
+  'mandan', 'mandathi', 'kootha', 'koothi', 'sunni',
+  'kundan', 'thayyoli mone', 'poorimol', 'thevadiya mone',
+  'cheriya kunna', 'valiya kunna', 'kunna illa',
+  // Malayalam transliteration variants
+  'myirr', 'mairu', 'mairan', 'thayolee', 'thevdiya',
+  'poori', 'poorimon', 'pannimon', 'thalayoli',
+  'vediyan', 'vedichi', 'oomban', 'koothichi',
 ];
 
 // Sexual / body-shaming emoji patterns
@@ -77,11 +92,9 @@ const SEXUAL_EMOJIS = ['🍑', '🍆', '💦', '🌭', '🥒', '🍌', '👅', '
 
 function containsSexualEmojiCombo(text: string): { found: boolean; reason: string } {
   const found = SEXUAL_EMOJIS.filter(e => text.includes(e));
-  // If 2+ sexual emojis appear together, it's likely harassment
   if (found.length >= 2) {
     return { found: true, reason: `Sexual harassment emoji combination detected: ${found.join(' ')}` };
   }
-  // Single 🍑 or 🍆 or 💦 with body-related words
   if (found.length >= 1) {
     const lower = text.toLowerCase();
     const bodyWords = ['ass', 'butt', 'booty', 'dick', 'cock', 'cum', 'wet', 'suck', 'lick', 'ride', 'smash', 'bang', 'pound', 'thicc', 'thick', 'juicy', 'tight', 'hole', 'big', 'size', 'huge', 'small', 'tiny'];
@@ -95,7 +108,6 @@ function containsSexualEmojiCombo(text: string): { found: boolean; reason: strin
 }
 
 function containsBadWord(text: string): { found: boolean; word: string } {
-  // First check sexual emoji combos
   const emojiCheck = containsSexualEmojiCombo(text);
   if (emojiCheck.found) {
     return { found: true, word: emojiCheck.reason };
@@ -133,23 +145,33 @@ serve(async (req) => {
     }
     const userId = claimsData.claims.sub as string;
 
+    // Check if user is banned
+    const { data: userProfile } = await supabase.from('profiles').select('is_banned, is_suspended').eq('user_id', userId).maybeSingle();
+    if (userProfile?.is_banned) {
+      return new Response(JSON.stringify({ error: 'Your account has been banned. You cannot post content.', banned: true }), {
+        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    if (userProfile?.is_suspended) {
+      return new Response(JSON.stringify({ error: 'Your account is suspended. You cannot post content.', suspended: true }), {
+        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { type, content, postId, forceFlag, checkEmbeddedText } = await req.json();
 
     let flagged = false;
     let reason = '';
 
-    // If forceFlag is true (known cyberbullying content from dataset), skip AI and flag directly
     if (forceFlag) {
       flagged = true;
       reason = 'Known cyberbullying content detected by CNN classification model';
     } else if (type === 'text') {
-      // First check against bad word list for instant blocking
       const badWordCheck = containsBadWord(content);
       if (badWordCheck.found) {
         flagged = true;
         reason = `Profanity/harassment detected: contains blocked word "${badWordCheck.word}"`;
       } else {
-        // Use AI to detect cyberbullying in text (simulating TF-IDF + Linear SVC)
         const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
           method: "POST",
           headers: {
@@ -161,7 +183,7 @@ serve(async (req) => {
             messages: [
               {
                 role: "system",
-                content: `You are a cyberbullying detection system that simulates TF-IDF vectorization with Linear SVC classification. Analyze the given text comment and determine if it contains cyberbullying, hate speech, harassment, threats, or abusive language.
+                content: `You are a cyberbullying detection system. Analyze the given text comment and determine if it contains cyberbullying, hate speech, harassment, threats, or abusive language in ANY language including English, Malayalam, Hindi, Tamil, Telugu, Kannada, and transliterated forms.
 
 Respond ONLY with a JSON object (no markdown, no code blocks):
 {"flagged": true/false, "reason": "brief explanation", "confidence": 0.0-1.0}
@@ -199,17 +221,16 @@ Be strict: flag content that is clearly bullying, threatening, harassing, or con
         }
       }
     } else if (type === 'image') {
-      // Use AI to analyze image for harmful content AND embedded text (simulating CNN)
       const systemPrompt = checkEmbeddedText
-        ? `You are an image content moderation system that simulates CNN-based harmful content detection. Analyze the given image and determine if it contains:
+        ? `You are an image content moderation system. Analyze the given image and determine if it contains:
 1. Harmful, bullying, violent, explicit, or inappropriate visual content
-2. ANY embedded/overlaid text in the image - read all text visible in the image and check if it contains cyberbullying, hate speech, harassment, threats, slurs, or abusive language
+2. ANY embedded/overlaid text in the image - read all text visible in the image and check if it contains cyberbullying, hate speech, harassment, threats, slurs, or abusive language in ANY language
 
 If the image contains text with cyberbullying or offensive content, it MUST be flagged even if the image itself looks normal.
 
 Respond ONLY with a JSON object (no markdown, no code blocks):
 {"flagged": true/false, "reason": "brief explanation", "confidence": 0.0-1.0, "embedded_text": "any text found in the image or empty string"}`
-        : `You are an image content moderation system that simulates CNN-based harmful content detection. Analyze the given image URL and determine if it contains harmful, bullying, violent, explicit, or inappropriate content.
+        : `You are an image content moderation system. Analyze the given image URL and determine if it contains harmful, bullying, violent, explicit, or inappropriate content.
 
 Respond ONLY with a JSON object (no markdown, no code blocks):
 {"flagged": true/false, "reason": "brief explanation", "confidence": 0.0-1.0}
@@ -249,7 +270,6 @@ Be reasonable - only flag genuinely harmful content.`;
           flagged = result.flagged === true && (result.confidence || 0) > 0.6;
           reason = result.reason || 'Harmful content detected';
           
-          // If embedded text was found, also check it against the bad word list
           if (!flagged && result.embedded_text) {
             const textCheck = containsBadWord(result.embedded_text);
             if (textCheck.found) {

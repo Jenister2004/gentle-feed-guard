@@ -15,6 +15,11 @@ const GIF_DATASET: GifData[] = [
   { url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcWttcnhyaTN3Ym15dmx6NWVqcXB4cXN3bjk2d2ZlcHAxYTdqd2Q5ZyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3oz8xIsloV5zOkeDE4/giphy.gif', label: 'Dancing' },
   { url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNzJpbjk4cHpya2p6OGRzZjhwNnBhcjQ1aGZtMGw1Z3VpNjM2cyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3oEjHFOscgNwdSRRDy/giphy.gif', label: 'Cool' },
   { url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExd2V4MGdlcGRzOGRiYWNpNWxuamJkMDRxYm11dDJseWFpdzk4czV1ciZlcD12MV9naWZzX3NlYXJjaCZjdD1n/l0HlBO7eyXzSZkJri/giphy.gif', label: 'Peace' },
+  { url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYjk5ZTQ3NWFkOTk2MzJkMjgyNGI2ZTNhNmJmMmYzZGQ5MjcxNyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3oEdv6sy3ulljPMGdy/giphy.gif', label: 'Celebration' },
+  { url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMzBhNjY4MjEwODJmN2M5MzI0OGFiZmNhODQ4MTI0MTNiYjM1NiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/xUPGGDNsLvqsBOhuU0/giphy.gif', label: 'Love It' },
+  { url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNjI1MDIxZTQ1OTUzYjZhMjExZjUyYjcwZDM4OTIyOTk5ZTUzNSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/l0MYAs5YlN1QJbp4I/giphy.gif', label: 'Wow' },
+  { url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOGUzODQ5YTllOWUyMzUzOWRiNjQ2N2E4MDJjODY1YTJkYjYyMCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3ohzdIuqJoo8QdKlnW/giphy.gif', label: 'Thank You' },
+
   // Cyberbullying test GIFs — Mocking / Body shaming / Racial / Mean
   { url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNWE2OGZjbjNqcHdtOGJ3Y2Z4d3AybGkzcTNha2d1eGdrMWpzNGZ5aCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/l1J9u3TZfpmeDLkD6/giphy.gif', label: '🚫 Mocking', flagged: true },
   { url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcjVwc3ViZnVraXlzeTk2NDNqaGNzN2s0MXR3d3FlNGZqcG4yYmdoZCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3o7btT1T9qpQZWhNlK/giphy.gif', label: '🚫 Mean Look', flagged: true },
@@ -27,6 +32,17 @@ const GIF_DATASET: GifData[] = [
   { url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdHB2YjRtN2J2MnRyZzdhbHNkbGJwYmR0c2l5eGhieTI0cHJzeiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/l0HlvtIPdJRr0/giphy.gif', label: '🚫 Bully Push', flagged: true },
   { url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdG9hNjRzOHNmbjRiYXZxODBlZzR0cjVza2RiZ2s3bGM1NWNnbiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/xUPGcJ9pOikPnc44YU/giphy.gif', label: '🚫 Skinny Shame', flagged: true },
   { url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExaDI5amFtc3JrMnZ1NnRhcXV6NmRsOGZhaTRlcGlhazJtcHRxdiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3oEjHGnY8oB4BHVTQ4/giphy.gif', label: '🚫 Hate Speech', flagged: true },
+  // More cyberbullying GIFs — Exclusion / Threat / Intimidation
+  { url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYTVjYzQ3ZjExMjI0N2MzMzIyNjA5ZWJhMzBjMDRkNzA5ZTZmNCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/l2JehQ2GitHGdVG9Y/giphy.gif', label: '🚫 Go Away', flagged: true },
+  { url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExN2JiODViOGMzNjk1NThjM2M1NzljOGM0NjIxNDJhMGE4NTFjZiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/AC1PtbdsJZyOQ/giphy.gif', label: '🚫 Eye Roll', flagged: true },
+  { url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMjE0YmUxNTQ3MDhhYjNhNjY4MjIzOGRjMGIxYzI3NDFhMjA2MCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3o6ZtpzSCmlYjIeyjm/giphy.gif', label: '🚫 Shut Up', flagged: true },
+  { url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMDQ4YjkyNGYxNjM5N2VkNGMxOGMzNjI0Mjk2ZTQwOWI0MmE1ZCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3oAt2dA6LxMkRrGc0g/giphy.gif', label: '🚫 Cringe', flagged: true },
+  { url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZWJlN2I2ZTg4NzJlMDlhZmE0OGJmNTk5OWE5ZDZkYjVhMjk5ZSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/xT5LMHxhOfscxPfIfm/giphy.gif', label: '🚫 Laughing At', flagged: true },
+  { url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExODE1MzhmMTJiNjFlNzc2NmQwNjJiMGI3ZjdhMTg5NjI2YjUyZCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/26FPy3QZQqGtDcrja/giphy.gif', label: '🚫 Pointing', flagged: true },
+  { url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOWY0ZjBjY2JhMDE4NWQ2OGVhOTZkOGI1OGI2NTIzYjQ3MDg5YyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/l0HlR3kHjpUWHn5Mk/giphy.gif', label: '🚫 Disgust', flagged: true },
+  { url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNWEzOWIxYmU1N2M0YjA0NzE3MjZlNTY3ZTZlYjRmMDQ4YjRlNiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/l0MYEqEzwMKhJe3UQ/giphy.gif', label: '🚫 Dismissive', flagged: true },
+  { url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMzE1MTcxZTRhMDA3NWQ5NWRhYWNhMTk1ZjY4YTUzY2Y1NzFkOSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3o7TKTDn976rzVgky4/giphy.gif', label: '🚫 You Suck', flagged: true },
+  { url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNmM3ZDgzMmQ4NTBiOGI0Njk4NjY3NjM3NjM3NjI2Y2FhZjA0MCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3oEjHCWdU7r4WoACtO/giphy.gif', label: '🚫 Toxic', flagged: true },
 ];
 
 interface GifData {
