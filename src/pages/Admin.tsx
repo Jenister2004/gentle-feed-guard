@@ -84,6 +84,11 @@ export default function Admin() {
     if (!error) { toast.success('User unsuspended'); loadUsers(); }
   };
 
+  const unbanUser = async (userId: string) => {
+    const { error } = await supabase.from('profiles').update({ is_banned: false }).eq('user_id', userId);
+    if (!error) { toast.success('User unbanned'); loadUsers(); }
+  };
+
   const markReviewed = async (id: string) => {
     const { error } = await supabase.from('flagged_content').update({ reviewed: true }).eq('id', id);
     if (!error) { toast.success('Marked as reviewed'); loadFlagged(); }
@@ -275,7 +280,11 @@ export default function Admin() {
                             <button onClick={() => suspendUser(u.user_id)} className="px-2 py-0.5 border border-yellow-500/30 text-yellow-500/70 rounded hover:bg-yellow-500/20 text-[10px]">
                               SUSPEND
                             </button>}
-                          {!u.is_banned && (
+          {u.is_banned ? (
+                            <button onClick={() => unbanUser(u.user_id)} className="px-2 py-0.5 border border-green-500/30 text-green-500/70 rounded hover:bg-green-500/20 text-[10px]">
+                              UNBAN
+                            </button>
+                          ) : (
                             <button onClick={() => banUser(u.user_id)} className="px-2 py-0.5 border border-red-500/30 text-red-500/70 rounded hover:bg-red-500/20 text-[10px]">
                               <Ban className="h-3 w-3 inline" /> BAN
                             </button>
