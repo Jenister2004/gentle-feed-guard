@@ -32,7 +32,7 @@ export default function BottomNav() {
         </Link>
 
         {/* Create Post (center) */}
-        <CreatePost onCreated={() => navigate('/')} />
+        <CreatePost onCreated={() => navigate('/instagram')} />
 
         {/* Reels */}
         <Link
