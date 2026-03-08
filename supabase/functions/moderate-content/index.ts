@@ -25,51 +25,32 @@ const BAD_WORDS = [
   'motherfucker', 'mf', 'mofo', 'motherf*cker', 'mfer',
   'stfu', 'gtfo', 'kys', 'kill yourself', 'kms',
   
-  // Body shaming / appearance
-  'ugly', 'fatty', 'fatso', 'pig', 'cow', 'whale', 'lard', 'obese',
-  'anorexic', 'skeleton', 'stick figure', 'flat', 'midget', 'manlet',
-  'butterface', 'fugly', 'hideous', 'gross looking',
+  // Body shaming / DIRECT personal attacks only
+  'fatty', 'fatso', 'whale', 'lard',
+  'anorexic', 'skeleton', 'midget', 'manlet',
+  'butterface', 'fugly', 'gross looking',
   
   // Violence / threats
   'die', 'go die', 'drop dead', 'hope you die', 'neck yourself',
   'slit your wrists', 'jump off', 'hang yourself', 'end yourself',
   
-  // General insults
-  'trash', 'garbage', 'worthless', 'pathetic', 'loser', 'lame',
-  'idiot', 'moron', 'stupid', 'dumb', 'braindead', 'brain dead',
-  'clown', 'joke', 'disgrace', 'waste of space', 'nobody',
-  'creep', 'weirdo', 'freak', 'psycho', 'nutjob', 'delusional',
+  // Direct personal insults (clear attacks, not opinions)
+  'worthless', 'waste of space',
+  'braindead', 'brain dead',
+  'psycho', 'nutjob',
   
-  // Gen Z / internet slang bullying
-  'ratio', 'ratiod', 'cope', 'seethe', 'mald', 'malding',
-  'skill issue', 'no cap you ugly', 'mid', 'npc', 'npc behavior',
-  'pick me', 'pick me girl', 'pick me boy', 'simp',
-  'incel', 'femcel', 'beta', 'beta male', 'cuck', 'soy boy', 'soyboy',
-  'touch grass', 'chronically online',
-  'delulu', 'cringe', 'ick', 'flop', 'flop era',
-  'caught in 4k', 'main character syndrome',
-  'karen', 'boomer', 'ok boomer',
-  'sus', 'sussy', 'cap', 'no cap trash',
-  'L take', 'huge L', 'massive L', 'you fell off',
+  // Gen Z / internet slang - ONLY clearly targeted bullying
+  'no cap you ugly', 'npc behavior',
+  'incel', 'femcel', 'beta male', 'cuck', 'soy boy', 'soyboy',
   'deadass ugly', 'fr ugly', 'lowkey ugly', 'highkey ugly',
-  'ate nothing', 'served nothing', 'gave nothing',
   'oomf ugly', 'mutuals hate you',
   'unalive', 'unalive yourself', 'go unalive',
-  'giving pick me', 'giving cringe', 'giving desperate',
-  'clout chaser', 'attention seeker', 'try hard', 'tryhard',
-  'dog water', 'dogwater', 'bot', 'ur a bot',
-  'no rizz', 'zero rizz', 'negative rizz',
-  'get rekt', 'rekt', 'owned', 'pwned',
-  'noob', 'n00b', 'scrub',
+  'dog water', 'dogwater',
   'weirdo behavior', 'creep behavior', 'predator',
   'pedo', 'groomer',
-  'loner', 'no friends', 'nobody likes you', 'everyone hates you',
-  'go away', 'leave forever', 'disappear',
-  'not funny', 'unfunny', 'cringe af',
+  'nobody likes you', 'everyone hates you',
+  'ran through', 'for the streets',
   'poverty', 'broke boy', 'broke girl', 'poor kid',
-  'crusty', 'dusty', 'musty', 'ashy',
-  'ran through', 'for the streets', 'body count',
-  'yikes', 'embarrassing', 'embarrassment',
 
   // Malayalam bad words and insults
   'thendi', 'thevidiya', 'patti', 'myru', 'myran', 'thayoli',
