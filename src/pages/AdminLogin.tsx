@@ -20,8 +20,7 @@ export default function AdminLogin() {
     </div>
   );
 
-  // If already logged in as admin, go to dashboard
-  if (user && isAdmin) return <Navigate to="/admin" replace />;
+  // Always require credential entry before opening admin dashboard
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
