@@ -12,11 +12,9 @@ export default function Index() {
     </div>
   );
 
-  const handleSelect = (platform: string) => {
+  const handleSelect = (platform: string, authRoute: string) => {
     if (!user) {
-      // Store chosen platform, redirect to auth
-      sessionStorage.setItem('platform', platform);
-      navigate('/auth');
+      navigate(authRoute);
     } else {
       navigate(platform);
     }
