@@ -169,7 +169,7 @@ export default function Profile() {
                     onKeyDown={e => e.key === 'Enter' && handleSaveUsername()}
                   />
                   <Button size="icon" variant="ghost" className="h-7 w-7" onClick={handleSaveUsername} disabled={savingUsername}>
-                    <Check className="h-4 w-4 text-green-500" />
+                    <Check className="h-4 w-4 text-primary" />
                   </Button>
                   <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setEditingUsername(false)}>
                     <X className="h-4 w-4 text-destructive" />
