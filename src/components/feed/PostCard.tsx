@@ -218,6 +218,38 @@ export default function PostCard({ post, posterUsername, posterAvatarUrl, onDele
     }
   };
 
+  const reportPost = async () => {
+    if (!user) return;
+    const reason = prompt('Why are you reporting this post?');
+    if (!reason?.trim()) return;
+    const { error } = await supabase.from('flagged_content').insert({
+      content_type: 'post',
+      user_id: user.id,
+      content_id: post.id,
+      original_content: post.image_url,
+      reason: `User report: ${reason.trim()}`,
+      action_taken: 'pending_review',
+    });
+    if (error) toast.error('Failed to report');
+    else toast.success('Post reported. Our team will review it.');
+  };
+
+  const reportComment = async (commentId: string, content: string) => {
+    if (!user) return;
+    const reason = prompt('Why are you reporting this comment?');
+    if (!reason?.trim()) return;
+    const { error } = await supabase.from('flagged_content').insert({
+      content_type: 'comment',
+      user_id: user.id,
+      content_id: commentId,
+      original_content: content,
+      reason: `User report: ${reason.trim()}`,
+      action_taken: 'pending_review',
+    });
+    if (error) toast.error('Failed to report');
+    else toast.success('Comment reported. Our team will review it.');
+  };
+
   return (
     <div className="bg-card border border-border rounded-lg mb-4 card-animate animate-fade-in">
       {/* Header */}
