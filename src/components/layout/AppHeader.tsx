@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Camera, Home, LogOut, User, AlertTriangle } from 'lucide-react';
 import CreatePost from '@/components/feed/CreatePost';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import InstagramLogo from '@/components/icons/InstagramLogo';
+import CreateStory from '@/components/stories/CreateStory';
 
 export default function AppHeader() {
   const { user, profile, signOut } = useAuth();
@@ -12,7 +14,7 @@ export default function AppHeader() {
     <header className="fixed top-0 left-0 right-0 z-50 bg-card border-b border-border">
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <Camera className="h-6 w-6 text-primary" />
+          <InstagramLogo className="h-6 w-6 text-primary" />
           <span className="text-xl font-bold instagram-gradient-text">Insta Lite</span>
         </Link>
         <div className="flex items-center gap-4">
