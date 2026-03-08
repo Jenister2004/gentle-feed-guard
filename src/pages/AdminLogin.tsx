@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, Terminal, Loader2, ArrowLeft } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -20,8 +20,7 @@ export default function AdminLogin() {
     </div>
   );
 
-  // If already logged in as admin, go to dashboard
-  if (user && isAdmin) return <Navigate to="/admin" replace />;
+  // Always require credential entry before opening admin dashboard
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,7 +59,7 @@ export default function AdminLogin() {
     }
 
     setSubmitting(false);
-    // Auth state change will trigger redirect via the Navigate above
+    navigate('/admin');
   };
 
   return (
