@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Plus, ImagePlus, Loader2 } from 'lucide-react';
+import { Plus, ImagePlus, Loader2, Camera } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function CreateStory({ onCreated, triggerMode = 'bar' }: { onCreated: () => void; triggerMode?: 'bar' | 'icon' }) {
