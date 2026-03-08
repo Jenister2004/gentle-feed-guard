@@ -46,12 +46,36 @@ interface YTComment {
 
 // Sample YouTube video IDs for demo content
 const SAMPLE_VIDEOS = [
-  { ytId: 'dQw4w9WgXcQ', title: 'Rick Astley - Never Gonna Give You Up', desc: 'The official video for "Never Gonna Give You Up" by Rick Astley.' },
-  { ytId: 'jNQXAC9IVRw', title: 'Me at the zoo', desc: 'The first video on YouTube. Shot at the San Diego Zoo.' },
-  { ytId: '9bZkp7q19f0', title: 'PSY - GANGNAM STYLE', desc: 'The worldwide viral hit from PSY.' },
-  { ytId: 'kJQP7kiw5Fk', title: 'Luis Fonsi - Despacito ft. Daddy Yankee', desc: 'One of the most viewed videos on YouTube.' },
-  { ytId: 'JGwWNGJdvx8', title: 'Ed Sheeran - Shape of You', desc: 'The official music video for Shape of You.' },
-  { ytId: 'RgKAFK5djSk', title: 'Wiz Khalifa - See You Again ft. Charlie Puth', desc: 'Official video for "See You Again" from Furious 7.' },
+  { ytId: 'dQw4w9WgXcQ', title: 'Rick Astley - Never Gonna Give You Up', desc: 'The official video for "Never Gonna Give You Up" by Rick Astley.', channel: 'Rick Astley' },
+  { ytId: 'jNQXAC9IVRw', title: 'Me at the zoo', desc: 'The first video on YouTube. Shot at the San Diego Zoo.', channel: 'jawed' },
+  { ytId: '9bZkp7q19f0', title: 'PSY - GANGNAM STYLE(강남스타일)', desc: 'The worldwide viral hit from PSY.', channel: 'officialpsy' },
+  { ytId: 'kJQP7kiw5Fk', title: 'Luis Fonsi - Despacito ft. Daddy Yankee', desc: 'One of the most viewed videos on YouTube.', channel: 'Luis Fonsi' },
+  { ytId: 'JGwWNGJdvx8', title: 'Ed Sheeran - Shape of You', desc: 'The official music video for Shape of You.', channel: 'Ed Sheeran' },
+  { ytId: 'RgKAFK5djSk', title: 'Wiz Khalifa - See You Again ft. Charlie Puth', desc: 'Official video for "See You Again" from Furious 7.', channel: 'Wiz Khalifa' },
+  { ytId: 'CevxZvSJLk8', title: 'Katy Perry - Roar', desc: 'Official music video for Roar by Katy Perry.', channel: 'Katy Perry' },
+  { ytId: 'YqeW9_5kURI', title: 'Mark Ronson - Uptown Funk ft. Bruno Mars', desc: 'The worldwide smash hit Uptown Funk.', channel: 'Mark Ronson' },
+  { ytId: 'OPf0YbXqDm0', title: 'Mark Ronson - Uptown Funk (Live)', desc: 'An iconic live performance.', channel: 'Mark Ronson' },
+  { ytId: 'fJ9rUzIMcZQ', title: 'Queen – Bohemian Rhapsody', desc: 'The legendary Bohemian Rhapsody by Queen.', channel: 'Queen Official' },
+  { ytId: 'hTWKbfoikeg', title: 'Nirvana - Smells Like Teen Spirit', desc: 'Official music video remastered in HD.', channel: 'Nirvana' },
+  { ytId: 'YR5ApYxkU-U', title: 'Lady Gaga - Poker Face', desc: 'Official music video for Poker Face.', channel: 'Lady Gaga' },
+  { ytId: 'lp-EO5I60KA', title: 'Eminem - Lose Yourself', desc: 'From the 8 Mile soundtrack.', channel: 'Eminem' },
+  { ytId: '60ItHLz5WEA', title: 'Alan Walker - Faded', desc: 'Official music video for Faded.', channel: 'Alan Walker' },
+  { ytId: 'RBumgq5yVrA', title: 'Passenger - Let Her Go', desc: 'Official video for Let Her Go.', channel: 'Passenger' },
+  { ytId: 'pRpeEdMmmQ0', title: 'Shakira - Waka Waka (This Time for Africa)', desc: 'The 2010 FIFA World Cup official song.', channel: 'Shakira' },
+  { ytId: 'e-ORhEE9VVg', title: 'Taylor Swift - Blank Space', desc: 'The official music video for Blank Space.', channel: 'Taylor Swift' },
+  { ytId: 'nfWlot6h_JM', title: 'Tyler, The Creator - See You Again', desc: 'Official video from the Flower Boy album.', channel: 'Tyler, The Creator' },
+  { ytId: 'QYh6mYIJG2Y', title: 'Adele - Rolling in the Deep', desc: 'Official music video for Rolling in the Deep.', channel: 'Adele' },
+  { ytId: 'hLQl3WQQoQ0', title: 'Adele - Someone Like You', desc: 'Official music video for Someone Like You.', channel: 'Adele' },
+  { ytId: 'bo_efYhYU2A', title: 'Sia - Cheap Thrills ft. Sean Paul', desc: 'The official lyric video.', channel: 'Sia' },
+  { ytId: 'HP-MbfHFUqs', title: 'Charlie Puth - See You Again (Piano)', desc: 'A beautiful piano tribute.', channel: 'Charlie Puth' },
+  { ytId: 'SlPhMPnQ58k', title: 'Maroon 5 - Sugar', desc: 'Official music video for Sugar.', channel: 'Maroon 5' },
+  { ytId: 'pt8VYOfr8To', title: 'The Weeknd - Starboy ft. Daft Punk', desc: 'Official music video for Starboy.', channel: 'The Weeknd' },
+  { ytId: 'DyDfgMOUjCI', title: 'Billie Eilish - Bad Guy', desc: 'Official music video for Bad Guy.', channel: 'Billie Eilish' },
+  { ytId: 'ApXoWvfEYVU', title: 'Post Malone - Circles', desc: 'Official music video for Circles.', channel: 'Post Malone' },
+  { ytId: 'lWA2pjMjpBs', title: 'Dua Lipa - Levitating', desc: 'Official music video for Levitating.', channel: 'Dua Lipa' },
+  { ytId: 'HCjNJDNzw8Y', title: 'The Chainsmokers - Closer ft. Halsey', desc: 'Official lyric video.', channel: 'The Chainsmokers' },
+  { ytId: 'IcrbM1l_BoI', title: 'Coldplay - Something Just Like This', desc: 'The Chainsmokers & Coldplay official video.', channel: 'Coldplay' },
+  { ytId: 'ru0K8uYEZWw', title: 'Clean Bandit - Rather Be ft. Jess Glynne', desc: 'Official video for Rather Be.', channel: 'Clean Bandit' },
 ];
 
 function extractYouTubeId(url: string): string | null {
@@ -99,9 +123,24 @@ export default function YouTube() {
           liked: !!likeData,
         };
       }));
-      setVideos(enriched);
+      // Always add sample videos alongside user uploads
+      const sampleVids: YTVideo[] = SAMPLE_VIDEOS.map((sv, i) => ({
+        id: `sample-${i}`,
+        user_id: '',
+        title: sv.title,
+        description: sv.desc,
+        video_url: `https://www.youtube.com/watch?v=${sv.ytId}`,
+        thumbnail_url: `https://img.youtube.com/vi/${sv.ytId}/hqdefault.jpg`,
+        video_type: 'youtube',
+        created_at: new Date(Date.now() - (i + 1) * 3600000).toISOString(),
+        username: sv.channel,
+        avatar_url: null,
+        likeCount: Math.floor(Math.random() * 50000) + 100,
+        commentCount: Math.floor(Math.random() * 5000) + 10,
+        liked: false,
+      }));
+      setVideos([...enriched, ...sampleVids]);
     } else {
-      // Show sample videos as placeholders
       setVideos(SAMPLE_VIDEOS.map((sv, i) => ({
         id: `sample-${i}`,
         user_id: '',
@@ -110,11 +149,11 @@ export default function YouTube() {
         video_url: `https://www.youtube.com/watch?v=${sv.ytId}`,
         thumbnail_url: `https://img.youtube.com/vi/${sv.ytId}/hqdefault.jpg`,
         video_type: 'youtube',
-        created_at: new Date(Date.now() - i * 86400000).toISOString(),
-        username: 'YouTube',
+        created_at: new Date(Date.now() - (i + 1) * 3600000).toISOString(),
+        username: sv.channel,
         avatar_url: null,
-        likeCount: Math.floor(Math.random() * 1000),
-        commentCount: Math.floor(Math.random() * 100),
+        likeCount: Math.floor(Math.random() * 50000) + 100,
+        commentCount: Math.floor(Math.random() * 5000) + 10,
         liked: false,
       })));
     }
@@ -211,13 +250,18 @@ export default function YouTube() {
             </div>
           ) : (
             <>
-              {/* Category chips */}
-              <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
-                {['All', 'Music', 'Gaming', 'Education', 'Entertainment', 'Sports', 'News'].map(cat => (
-                  <button key={cat} className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${cat === 'All' ? 'bg-foreground text-background' : 'bg-secondary text-foreground hover:bg-muted'}`}>
-                    {cat}
-                  </button>
-                ))}
+              {/* Upload CTA + Category chips */}
+              <div className="flex items-center justify-between mb-4 gap-4">
+                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide flex-1">
+                  {['All', 'Music', 'Gaming', 'Education', 'Entertainment', 'Sports', 'News'].map(cat => (
+                    <button key={cat} className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${cat === 'All' ? 'bg-foreground text-background' : 'bg-secondary text-foreground hover:bg-muted'}`}>
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+                <Button onClick={() => setUploadOpen(true)} className="rounded-full gap-1.5 bg-destructive hover:bg-destructive/90 text-destructive-foreground flex-shrink-0">
+                  <Plus className="h-4 w-4" /> Upload Video
+                </Button>
               </div>
 
               {/* Video grid */}
