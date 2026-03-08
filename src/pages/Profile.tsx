@@ -32,6 +32,7 @@ const HIGHLIGHT_ICONS = [
 
 export default function Profile() {
   const { user, profile } = useAuth();
+  const navigate = useNavigate();
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
