@@ -149,6 +149,11 @@ select:focus {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
+/* Instagram logo gradient background */
+.instagram-logo-gradient {
+  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+}
+
 /* Scrollbar hide utility */
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }

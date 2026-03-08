@@ -13,6 +13,7 @@ import ResetPassword from "./pages/ResetPassword";
 import Messages from "./pages/Messages";
 import Reels from "./pages/Reels";
 import Explore from "./pages/Explore";
+import Notifications from "./pages/Notifications";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/messages" element={<Messages />} />
             <Route path="/reels" element={<Reels />} />
             <Route path="/explore" element={<Explore />} />
+            <Route path="/notifications" element={<Notifications />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
