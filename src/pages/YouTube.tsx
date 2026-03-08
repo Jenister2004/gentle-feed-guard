@@ -382,8 +382,9 @@ function VideoPlayer({ video: initialVideo, user, onBack }: { video: YTVideo; us
   };
 
   const toggleLike = async () => {
-    if (!user || isSample) return;
-    if (liked) {
+    if (!user) return;
+    try {
+      const videoId = await ensureSaved();
       await supabase.from('youtube_likes').delete().eq('video_id', video.id).eq('user_id', user.id);
       setLiked(false); setLikeCount(p => p - 1);
     } else {
