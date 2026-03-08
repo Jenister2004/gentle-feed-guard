@@ -333,6 +333,15 @@ export default function PostCard({ post, posterUsername, posterAvatarUrl, onDele
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
                 )}
+                {user && user.id !== c.user_id && (
+                  <button
+                    onClick={() => reportComment(c.id, c.gif_url || c.content)}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive p-1"
+                    title="Report comment"
+                  >
+                    <Flag className="h-3.5 w-3.5" />
+                  </button>
+                )}
               </div>
             ))}
             {comments.length === 0 && <p className="text-sm text-muted-foreground">No comments yet.</p>}
