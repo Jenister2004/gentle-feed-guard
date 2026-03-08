@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Search, Film, User, PlusSquare } from 'lucide-react';
+import { Home, Search, Film, User, PlusSquare, Play } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import CreatePost from '@/components/feed/CreatePost';
