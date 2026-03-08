@@ -23,13 +23,6 @@ interface FollowRequest {
   profile?: { username: string; avatar_url: string | null; full_name: string };
 }
 
-const HIGHLIGHT_ICONS = [
-  { label: 'Travel', emoji: '✈️' },
-  { label: 'Food', emoji: '🍕' },
-  { label: 'Fitness', emoji: '💪' },
-  { label: 'Music', emoji: '🎵' },
-  { label: 'Pets', emoji: '🐾' },
-];
 
 export default function Profile() {
   const { user, profile, signOut, isAdmin } = useAuth();
