@@ -38,8 +38,8 @@ interface Comment {
   profile?: { username: string };
 }
 
-export default function PostCard({ post, posterUsername, posterAvatarUrl }: PostCardProps) {
-  const { user } = useAuth();
+export default function PostCard({ post, posterUsername, posterAvatarUrl, onDeleted }: PostCardProps & { onDeleted?: () => void }) {
+  const { user, isAdmin } = useAuth();
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -47,6 +47,28 @@ export default function PostCard({ post, posterUsername, posterAvatarUrl }: Post
   const [showComments, setShowComments] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [animateHeart, setAnimateHeart] = useState(false);
+  const [deleted, setDeleted] = useState(false);
+
+  const canDelete = user && (user.id === post.user_id || isAdmin);
+
+  const deletePost = async () => {
+    if (!confirm('Are you sure you want to delete this post?')) return;
+    try {
+      // Delete image from storage
+      const path = post.image_url.split('/post-images/')[1];
+      if (path) await supabase.storage.from('post-images').remove([path]);
+      // Delete post row
+      const { error } = await supabase.from('posts').delete().eq('id', post.id);
+      if (error) throw error;
+      setDeleted(true);
+      toast.success('Post deleted');
+      onDeleted?.();
+    } catch {
+      toast.error('Failed to delete post');
+    }
+  };
+
+  if (deleted) return null;
 
   useEffect(() => {
     if (!user) return;
