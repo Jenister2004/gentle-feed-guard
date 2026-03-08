@@ -21,6 +21,7 @@ export default function AppHeader() {
           <Link to="/" className="icon-click hover:opacity-60 transition-opacity">
             <Home className="h-6 w-6" />
           </Link>
+          <CreateStory onCreated={() => navigate('/')} triggerMode="icon" />
           <CreatePost onCreated={() => navigate('/')} />
           <Link to="/admin-login" className="icon-click hover:opacity-60 transition-opacity text-warning" title="Admin Panel">
             <AlertTriangle className="h-6 w-6" />
