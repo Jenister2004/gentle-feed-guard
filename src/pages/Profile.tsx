@@ -247,11 +247,16 @@ export default function Profile() {
     <div className="min-h-screen bg-background animate-page-enter">
       {/* Back button header */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-card border-b border-border">
-        <div className="max-w-lg mx-auto px-4 h-12 flex items-center">
-          <button onClick={() => navigate(-1)} className="p-1 hover:opacity-60 transition-opacity mr-3">
-            <ArrowLeft className="h-6 w-6" />
+        <div className="max-w-lg mx-auto px-4 h-12 flex items-center justify-between">
+          <div className="flex items-center">
+            <button onClick={() => navigate(-1)} className="p-1 hover:opacity-60 transition-opacity mr-3">
+              <ArrowLeft className="h-6 w-6" />
+            </button>
+            <span className="font-semibold text-base">{profile?.username || 'Profile'}</span>
+          </div>
+          <button onClick={async () => { await signOut(); navigate('/auth'); }} className="p-1 hover:opacity-60 transition-opacity text-destructive" title="Log out">
+            <LogOut className="h-5 w-5" />
           </button>
-          <span className="font-semibold text-base">{profile?.username || 'Profile'}</span>
         </div>
       </div>
       <main className="max-w-[935px] mx-auto px-4 pt-16 pb-8">
