@@ -207,15 +207,8 @@ export default function PostCard({ post, posterUsername, posterAvatarUrl, onDele
     else toast.success('Comment reported.');
   };
 
-  const sharePost = async () => {
-    const url = `${window.location.origin}/post/${post.id}`;
-    if (navigator.share) {
-      try { await navigator.share({ title: `Post by ${posterUsername}`, text: post.caption || '', url }); }
-      catch { /* user cancelled */ }
-    } else {
-      await navigator.clipboard.writeText(url);
-      toast.success('Link copied to clipboard!');
-    }
+  const sharePost = () => {
+    setShareOpen(true);
   };
 
   return (
