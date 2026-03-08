@@ -37,6 +37,7 @@ const App = () => (
             <Route path="/reels" element={<Reels />} />
             <Route path="/explore" element={<Explore />} />
             <Route path="/notifications" element={<Notifications />} />
+            <Route path="/youtube" element={<YouTube />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
