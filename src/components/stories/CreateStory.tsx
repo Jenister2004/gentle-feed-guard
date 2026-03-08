@@ -3,10 +3,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Plus, ImagePlus, Loader2 } from 'lucide-react';
+import { Plus, ImagePlus, Loader2, Camera } from 'lucide-react';
 import { toast } from 'sonner';
 
-export default function CreateStory({ onCreated }: { onCreated: () => void }) {
+export default function CreateStory({ onCreated, triggerMode = 'bar' }: { onCreated: () => void; triggerMode?: 'bar' | 'icon' }) {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
@@ -69,15 +69,25 @@ export default function CreateStory({ onCreated }: { onCreated: () => void }) {
 
   return (
     <>
-      <button
-        onClick={() => setOpen(true)}
-        className="flex flex-col items-center gap-1 flex-shrink-0"
-      >
-        <div className="w-16 h-16 rounded-full border-2 border-dashed border-muted-foreground/40 flex items-center justify-center hover:border-primary transition-colors icon-click">
-          <Plus className="h-6 w-6 text-muted-foreground" />
-        </div>
-        <span className="text-[10px] text-muted-foreground">Your story</span>
-      </button>
+      {triggerMode === 'icon' ? (
+        <button
+          onClick={() => setOpen(true)}
+          className="icon-click hover:opacity-60 transition-opacity"
+          title="Add Story"
+        >
+          <Camera className="h-6 w-6" />
+        </button>
+      ) : (
+        <button
+          onClick={() => setOpen(true)}
+          className="flex flex-col items-center gap-1 flex-shrink-0"
+        >
+          <div className="w-16 h-16 rounded-full border-2 border-dashed border-muted-foreground/40 flex items-center justify-center hover:border-primary transition-colors icon-click">
+            <Plus className="h-6 w-6 text-muted-foreground" />
+          </div>
+          <span className="text-[10px] text-muted-foreground">Your story</span>
+        </button>
+      )}
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-sm animate-scale-in">
