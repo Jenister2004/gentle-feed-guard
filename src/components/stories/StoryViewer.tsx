@@ -254,7 +254,10 @@ export default function StoryViewer({ group, onClose, onDeleted }: StoryViewerPr
         }
       `}</style>
 
-      <div className="relative w-full max-w-sm h-[85vh] max-h-[700px]">
+      <div
+        className="relative w-full max-w-sm h-[85vh] max-h-[700px] transition-transform duration-100"
+        style={{ transform: touchDelta ? `translateX(${touchDelta * 0.4}px)` : undefined }}
+      >
         {/* Progress bars */}
         <div className="absolute top-2 left-2 right-2 z-10 flex gap-1">
           {stories.map((_, i) => (
