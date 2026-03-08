@@ -281,13 +281,20 @@ export default function PostCard({ post, posterUsername, posterAvatarUrl, onDele
 
       {/* Actions */}
       <div className="px-4 pt-3 pb-1">
-        <div className="flex items-center gap-4">
-          <button onClick={toggleLike} className="icon-click hover:opacity-60 transition-opacity">
-            <Heart className={`h-6 w-6 ${liked ? 'fill-destructive text-destructive' : ''} ${animateHeart ? 'animate-heart-pop' : ''}`} />
-          </button>
-          <button onClick={() => setShowComments(!showComments)} className="icon-click hover:opacity-60 transition-opacity">
-            <MessageCircle className="h-6 w-6" />
-          </button>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <button onClick={toggleLike} className="icon-click hover:opacity-60 transition-opacity">
+              <Heart className={`h-6 w-6 ${liked ? 'fill-destructive text-destructive' : ''} ${animateHeart ? 'animate-heart-pop' : ''}`} />
+            </button>
+            <button onClick={() => setShowComments(!showComments)} className="icon-click hover:opacity-60 transition-opacity">
+              <MessageCircle className="h-6 w-6" />
+            </button>
+          </div>
+          {user && user.id !== post.user_id && (
+            <button onClick={reportPost} className="text-muted-foreground hover:text-destructive transition-colors" title="Report post">
+              <Flag className="h-5 w-5" />
+            </button>
+          )}
         </div>
         <p className="font-semibold text-sm mt-2">{likeCount} likes</p>
         {post.caption && (
