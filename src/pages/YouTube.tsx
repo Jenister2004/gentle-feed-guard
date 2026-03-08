@@ -70,9 +70,9 @@ export default function YouTube() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    if (!user && !loading) { navigate('/auth'); return; }
+    if (!user && !authLoading) { navigate('/auth'); return; }
     if (user) loadVideos();
-  }, [user, loading]);
+  }, [user, authLoading]);
 
   const loadVideos = async () => {
     setLoading(true);
