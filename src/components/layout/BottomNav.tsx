@@ -17,10 +17,10 @@ export default function BottomNav() {
       <div className="max-w-lg mx-auto flex items-center justify-around h-12">
         {/* Home */}
         <Link
-          to="/"
-          className={`flex flex-col items-center justify-center p-2 transition-opacity ${isActive('/') ? 'opacity-100' : 'opacity-50 hover:opacity-80'}`}
+          to="/instagram"
+          className={`flex flex-col items-center justify-center p-2 transition-opacity ${isActive('/instagram') ? 'opacity-100' : 'opacity-50 hover:opacity-80'}`}
         >
-          <Home className="h-6 w-6" strokeWidth={isActive('/') ? 2.5 : 1.5} />
+          <Home className="h-6 w-6" strokeWidth={isActive('/instagram') ? 2.5 : 1.5} />
         </Link>
 
         {/* Search / Explore */}
