@@ -4,7 +4,7 @@ import { Camera, Home, LogOut, User, AlertTriangle } from 'lucide-react';
 import CreatePost from '@/components/feed/CreatePost';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import InstagramLogo from '@/components/icons/InstagramLogo';
-import CreateStory from '@/components/stories/CreateStory';
+import CameraCapture from '@/components/camera/CameraCapture';
 
 export default function AppHeader() {
   const { user, profile, signOut } = useAuth();
@@ -21,7 +21,7 @@ export default function AppHeader() {
           <Link to="/" className="icon-click hover:opacity-60 transition-opacity">
             <Home className="h-6 w-6" />
           </Link>
-          <CreateStory onCreated={() => navigate('/')} triggerMode="icon" />
+          <CameraCapture />
           <CreatePost onCreated={() => navigate('/')} />
           <Link to="/admin-login" className="icon-click hover:opacity-60 transition-opacity text-warning" title="Admin Panel">
             <AlertTriangle className="h-6 w-6" />
