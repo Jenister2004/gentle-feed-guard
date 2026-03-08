@@ -70,7 +70,12 @@ export default function Admin() {
 
   const loadYtVideos = async () => {
     const { data } = await supabase.from('youtube_videos').select('*').order('created_at', { ascending: false });
-    setYtVideos(data || []);
+    if (data) {
+      const uids = [...new Set(data.map(v => v.user_id))];
+      const { data: profs } = await supabase.from('profiles').select('user_id, username').in('user_id', uids);
+      const map = Object.fromEntries((profs || []).map(p => [p.user_id, p.username]));
+      setYtVideos(data.map(v => ({ ...v, username: map[v.user_id] || 'unknown' })));
+    }
   };
 
   const loadYtComments = async () => {
