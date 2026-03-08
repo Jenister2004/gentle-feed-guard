@@ -3,13 +3,23 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import AppHeader from '@/components/layout/AppHeader';
 import AvatarUpload from '@/components/profile/AvatarUpload';
-import { Loader2, Pencil, Check, X, Grid3X3, Bookmark, UserSquare2, Settings, Plus, Heart, MessageCircle } from 'lucide-react';
+import { Loader2, Pencil, Check, X, Grid3X3, Bookmark, UserSquare2, Settings, Plus, Heart, MessageCircle, Lock, Globe, UserCheck, UserX, Bell } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 
 type ProfileTab = 'posts' | 'saved' | 'tagged';
+
+interface FollowRequest {
+  id: string;
+  requester_id: string;
+  created_at: string;
+  profile?: { username: string; avatar_url: string | null; full_name: string };
+}
 
 const HIGHLIGHT_ICONS = [
   { label: 'Travel', emoji: '✈️' },
