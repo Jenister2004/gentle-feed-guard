@@ -22,7 +22,14 @@ export default function Auth() {
   const { signIn, signUp } = useAuth();
 
   if (loading) return <div className="flex min-h-screen items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>;
-  if (user) return <Navigate to="/" replace />;
+  if (user) {
+    const savedPlatform = sessionStorage.getItem('platform');
+    if (savedPlatform) {
+      sessionStorage.removeItem('platform');
+      return <Navigate to={savedPlatform} replace />;
+    }
+    return <Navigate to="/" replace />;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
