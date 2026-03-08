@@ -213,8 +213,28 @@ export default function StoryViewer({ group, onClose, onDeleted }: StoryViewerPr
       style={{ animation: closing ? undefined : 'story-open 0.35s cubic-bezier(0.32, 0.72, 0, 1)' }}
       onMouseDown={() => setPaused(true)}
       onMouseUp={() => setPaused(false)}
-      onTouchStart={() => setPaused(true)}
-      onTouchEnd={() => setPaused(false)}
+      onTouchStart={(e) => {
+        setPaused(true);
+        setTouchStart({ x: e.touches[0].clientX, y: e.touches[0].clientY });
+        setTouchDelta(0);
+      }}
+      onTouchMove={(e) => {
+        if (!touchStart) return;
+        const dx = e.touches[0].clientX - touchStart.x;
+        setTouchDelta(dx);
+      }}
+      onTouchEnd={() => {
+        setPaused(false);
+        if (touchStart) {
+          if (touchDelta < -50) {
+            goNext();
+          } else if (touchDelta > 50) {
+            goPrev();
+          }
+          setTouchStart(null);
+          setTouchDelta(0);
+        }
+      }}
     >
       <style>{`
         @keyframes story-open {
