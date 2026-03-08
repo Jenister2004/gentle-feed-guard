@@ -13,7 +13,7 @@ import { formatDistanceToNow } from 'date-fns';
 import {
   ThumbsUp, MessageSquare, Share2, Upload, Link as LinkIcon, Play,
   Loader2, ArrowLeft, Trash2, Send, Search, Video, Home, Compass,
-  Bell, User, Menu, Plus
+  Bell, User, Menu, Plus, Shield
 } from 'lucide-react';
 
 interface YTVideo {
