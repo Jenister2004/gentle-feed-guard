@@ -1,17 +1,18 @@
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { Navigate } from 'react-router-dom';
-import { AlertTriangle, Terminal, Loader2 } from 'lucide-react';
+import { Navigate, useNavigate } from 'react-router-dom';
+import { AlertTriangle, Terminal, Loader2, ArrowLeft } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function AdminLogin() {
-  const { user, isAdmin, loading } = useAuth();
+  const { user, isAdmin, loading, signOut } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const { signIn } = useAuth();
 
   if (loading) return (
     <div className="flex min-h-screen items-center justify-center bg-[#0a0a0a]">
@@ -26,15 +27,49 @@ export default function AdminLogin() {
     e.preventDefault();
     if (!email || !password) return;
     setSubmitting(true);
-    const { error } = await signIn(email, password);
+
+    // If user is already logged in with a non-admin account, sign out first
+    if (user) {
+      await signOut();
+      // Small delay to let auth state clear
+      await new Promise(r => setTimeout(r, 500));
+    }
+
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       toast.error('Access denied: ' + error.message);
+      setSubmitting(false);
+      return;
     }
+
+    // Check if the logged-in user is admin
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', session.user.id)
+        .maybeSingle();
+
+      if (roleData?.role !== 'admin') {
+        toast.error('Access denied: You are not an admin.');
+        await supabase.auth.signOut();
+        setSubmitting(false);
+        return;
+      }
+    }
+
     setSubmitting(false);
+    // Auth state change will trigger redirect via the Navigate above
   };
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Back button */}
+      <button onClick={() => navigate(-1)} className="absolute top-4 left-4 z-20 text-green-500/70 hover:text-green-400 transition-colors">
+        <ArrowLeft className="h-6 w-6" />
+      </button>
+
       {/* Matrix-style background */}
       <div className="absolute inset-0 opacity-5 pointer-events-none overflow-hidden">
         <pre className="text-green-500 text-[10px] leading-3 font-mono whitespace-pre-wrap break-all animate-pulse">
@@ -60,6 +95,12 @@ export default function AdminLogin() {
             <AlertTriangle className="h-4 w-4" />
             <span>WARNING: Unauthorized access is prohibited</span>
           </div>
+
+          {user && !isAdmin && (
+            <div className="mb-4 p-2 border border-yellow-500/30 rounded bg-yellow-500/5 text-yellow-400 text-xs font-mono">
+              You're logged in as a regular user. Enter admin credentials below to switch.
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
