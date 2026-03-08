@@ -225,7 +225,7 @@ export default function Profile() {
                     placeholder="Your name"
                   />
                   <Button size="icon" variant="ghost" className="h-6 w-6" onClick={handleSaveFullName} disabled={savingName}>
-                    <Check className="h-3.5 w-3.5 text-green-500" />
+                    <Check className="h-3.5 w-3.5 text-primary" />
                   </Button>
                   <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => setEditingName(false)}>
                     <X className="h-3.5 w-3.5 text-destructive" />
