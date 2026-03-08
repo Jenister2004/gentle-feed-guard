@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Heart, MessageCircle, Trash2, AlertTriangle } from 'lucide-react';
+import { Heart, MessageCircle, Trash2, AlertTriangle, Flag } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -218,6 +218,38 @@ export default function PostCard({ post, posterUsername, posterAvatarUrl, onDele
     }
   };
 
+  const reportPost = async () => {
+    if (!user) return;
+    const reason = prompt('Why are you reporting this post?');
+    if (!reason?.trim()) return;
+    const { error } = await supabase.from('flagged_content').insert({
+      content_type: 'post',
+      user_id: user.id,
+      content_id: post.id,
+      original_content: post.image_url,
+      reason: `User report: ${reason.trim()}`,
+      action_taken: 'pending_review',
+    });
+    if (error) toast.error('Failed to report');
+    else toast.success('Post reported. Our team will review it.');
+  };
+
+  const reportComment = async (commentId: string, content: string) => {
+    if (!user) return;
+    const reason = prompt('Why are you reporting this comment?');
+    if (!reason?.trim()) return;
+    const { error } = await supabase.from('flagged_content').insert({
+      content_type: 'comment',
+      user_id: user.id,
+      content_id: commentId,
+      original_content: content,
+      reason: `User report: ${reason.trim()}`,
+      action_taken: 'pending_review',
+    });
+    if (error) toast.error('Failed to report');
+    else toast.success('Comment reported. Our team will review it.');
+  };
+
   return (
     <div className="bg-card border border-border rounded-lg mb-4 card-animate animate-fade-in">
       {/* Header */}
@@ -249,13 +281,20 @@ export default function PostCard({ post, posterUsername, posterAvatarUrl, onDele
 
       {/* Actions */}
       <div className="px-4 pt-3 pb-1">
-        <div className="flex items-center gap-4">
-          <button onClick={toggleLike} className="icon-click hover:opacity-60 transition-opacity">
-            <Heart className={`h-6 w-6 ${liked ? 'fill-destructive text-destructive' : ''} ${animateHeart ? 'animate-heart-pop' : ''}`} />
-          </button>
-          <button onClick={() => setShowComments(!showComments)} className="icon-click hover:opacity-60 transition-opacity">
-            <MessageCircle className="h-6 w-6" />
-          </button>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <button onClick={toggleLike} className="icon-click hover:opacity-60 transition-opacity">
+              <Heart className={`h-6 w-6 ${liked ? 'fill-destructive text-destructive' : ''} ${animateHeart ? 'animate-heart-pop' : ''}`} />
+            </button>
+            <button onClick={() => setShowComments(!showComments)} className="icon-click hover:opacity-60 transition-opacity">
+              <MessageCircle className="h-6 w-6" />
+            </button>
+          </div>
+          {user && user.id !== post.user_id && (
+            <button onClick={reportPost} className="text-muted-foreground hover:text-destructive transition-colors" title="Report post">
+              <Flag className="h-5 w-5" />
+            </button>
+          )}
         </div>
         <p className="font-semibold text-sm mt-2">{likeCount} likes</p>
         {post.caption && (
@@ -292,6 +331,15 @@ export default function PostCard({ post, posterUsername, posterAvatarUrl, onDele
                     title="Delete comment"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                )}
+                {user && user.id !== c.user_id && (
+                  <button
+                    onClick={() => reportComment(c.id, c.gif_url || c.content)}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive p-1"
+                    title="Report comment"
+                  >
+                    <Flag className="h-3.5 w-3.5" />
                   </button>
                 )}
               </div>
