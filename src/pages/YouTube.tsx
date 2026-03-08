@@ -11,8 +11,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 import {
-  ThumbsUp, ThumbsDown, MessageSquare, Share2, Upload, Link, Play,
-  Loader2, ArrowLeft, Trash2, Send, Search, Menu, Bell, Video
+  ThumbsUp, MessageSquare, Share2, Upload, Link as LinkIcon, Play,
+  Loader2, ArrowLeft, Trash2, Send, Search, Video, Home, Compass,
+  Bell, User, Menu, Plus
 } from 'lucide-react';
 
 interface YTVideo {
@@ -43,6 +44,16 @@ interface YTComment {
   avatar_url?: string | null;
 }
 
+// Sample YouTube video IDs for demo content
+const SAMPLE_VIDEOS = [
+  { ytId: 'dQw4w9WgXcQ', title: 'Rick Astley - Never Gonna Give You Up', desc: 'The official video for "Never Gonna Give You Up" by Rick Astley.' },
+  { ytId: 'jNQXAC9IVRw', title: 'Me at the zoo', desc: 'The first video on YouTube. Shot at the San Diego Zoo.' },
+  { ytId: '9bZkp7q19f0', title: 'PSY - GANGNAM STYLE', desc: 'The worldwide viral hit from PSY.' },
+  { ytId: 'kJQP7kiw5Fk', title: 'Luis Fonsi - Despacito ft. Daddy Yankee', desc: 'One of the most viewed videos on YouTube.' },
+  { ytId: 'JGwWNGJdvx8', title: 'Ed Sheeran - Shape of You', desc: 'The official music video for Shape of You.' },
+  { ytId: 'RgKAFK5djSk', title: 'Wiz Khalifa - See You Again ft. Charlie Puth', desc: 'Official video for "See You Again" from Furious 7.' },
+];
+
 function extractYouTubeId(url: string): string | null {
   const match = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
   return match ? match[1] : null;
@@ -56,6 +67,7 @@ export default function YouTube() {
   const [selectedVideo, setSelectedVideo] = useState<YTVideo | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (!user) { navigate('/auth'); return; }
@@ -70,7 +82,7 @@ export default function YouTube() {
       .eq('is_flagged', false)
       .order('created_at', { ascending: false });
 
-    if (data) {
+    if (data && data.length > 0) {
       const userIds = [...new Set(data.map(v => v.user_id))];
       const { data: profiles } = await supabase.from('profiles').select('user_id, username, avatar_url').in('user_id', userIds);
       const pMap = Object.fromEntries((profiles || []).map(p => [p.user_id, p]));
@@ -89,6 +101,23 @@ export default function YouTube() {
         };
       }));
       setVideos(enriched);
+    } else {
+      // Show sample videos as placeholders
+      setVideos(SAMPLE_VIDEOS.map((sv, i) => ({
+        id: `sample-${i}`,
+        user_id: '',
+        title: sv.title,
+        description: sv.desc,
+        video_url: `https://www.youtube.com/watch?v=${sv.ytId}`,
+        thumbnail_url: `https://img.youtube.com/vi/${sv.ytId}/hqdefault.jpg`,
+        video_type: 'youtube',
+        created_at: new Date(Date.now() - i * 86400000).toISOString(),
+        username: 'YouTube',
+        avatar_url: null,
+        likeCount: Math.floor(Math.random() * 1000),
+        commentCount: Math.floor(Math.random() * 100),
+        liked: false,
+      })));
     }
     setLoading(false);
   };
@@ -102,88 +131,132 @@ export default function YouTube() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* YouTube-style header */}
-      <header className="sticky top-0 z-50 bg-card border-b border-border px-4 py-2 flex items-center gap-3">
-        <button onClick={() => navigate('/')} className="p-1 hover:opacity-70">
-          <ArrowLeft className="h-5 w-5" />
-        </button>
-        <div className="flex items-center gap-1.5">
-          <div className="bg-destructive rounded-lg p-1">
-            <Play className="h-4 w-4 text-destructive-foreground fill-destructive-foreground" />
+      {/* YouTube Header */}
+      <header className="sticky top-0 z-50 bg-card border-b border-border">
+        <div className="max-w-[1400px] mx-auto px-4 h-14 flex items-center gap-4">
+          {/* Left */}
+          <div className="flex items-center gap-3">
+            <button onClick={() => navigate('/')} className="p-1.5 hover:bg-secondary rounded-full">
+              <ArrowLeft className="h-5 w-5" />
+            </button>
+            <div className="flex items-center gap-1 cursor-pointer" onClick={() => { setSelectedVideo(null); setSearchQuery(''); }}>
+              <div className="bg-destructive rounded-lg p-1.5">
+                <Play className="h-4 w-4 text-destructive-foreground fill-destructive-foreground" />
+              </div>
+              <span className="font-bold text-xl tracking-tight hidden sm:inline">YouTube</span>
+            </div>
           </div>
-          <span className="font-bold text-lg tracking-tight">YouTube</span>
-        </div>
-        <div className="flex-1 max-w-md mx-auto">
-          <div className="relative">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              placeholder="Search"
-              className="pl-9 h-9 bg-secondary border-0 rounded-full text-sm"
-            />
+
+          {/* Center — search */}
+          <div className="flex-1 max-w-xl mx-auto">
+            <div className="flex">
+              <div className="relative flex-1">
+                <Input
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  placeholder="Search"
+                  className="rounded-l-full rounded-r-none border-r-0 bg-secondary border-border h-10 pl-4"
+                />
+              </div>
+              <button className="px-5 bg-secondary border border-border rounded-r-full hover:bg-muted transition-colors">
+                <Search className="h-4 w-4 text-muted-foreground" />
+              </button>
+            </div>
+          </div>
+
+          {/* Right */}
+          <div className="flex items-center gap-2">
+            <Dialog open={uploadOpen} onOpenChange={setUploadOpen}>
+              <DialogTrigger asChild>
+                <button className="p-2 hover:bg-secondary rounded-full">
+                  <Video className="h-5 w-5" />
+                </button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader><DialogTitle>Upload Video</DialogTitle></DialogHeader>
+                <UploadForm userId={user.id} onDone={() => { setUploadOpen(false); loadVideos(); }} />
+              </DialogContent>
+            </Dialog>
+            <button className="p-2 hover:bg-secondary rounded-full">
+              <Bell className="h-5 w-5" />
+            </button>
+            <Avatar className="h-8 w-8 cursor-pointer" onClick={() => navigate('/profile')}>
+              <AvatarImage src={profile?.avatar_url || undefined} />
+              <AvatarFallback className="text-xs bg-muted">{profile?.username?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
+            </Avatar>
           </div>
         </div>
-        <Dialog open={uploadOpen} onOpenChange={setUploadOpen}>
-          <DialogTrigger asChild>
-            <Button variant="ghost" size="icon"><Video className="h-5 w-5" /></Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader><DialogTitle>Upload Video</DialogTitle></DialogHeader>
-            <UploadForm userId={user.id} onDone={() => { setUploadOpen(false); loadVideos(); }} />
-          </DialogContent>
-        </Dialog>
       </header>
 
       {selectedVideo ? (
         <VideoPlayer video={selectedVideo} user={user} onBack={() => { setSelectedVideo(null); loadVideos(); }} />
       ) : (
-        <div className="p-4">
+        <main className="max-w-[1400px] mx-auto px-4 py-6">
           {loading ? (
             <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
           ) : filteredVideos.length === 0 ? (
             <div className="text-center py-20 text-muted-foreground">
-              <Video className="h-12 w-12 mx-auto mb-3 opacity-40" />
-              <p className="font-medium">No videos yet</p>
-              <p className="text-sm mt-1">Be the first to upload!</p>
+              <Video className="h-16 w-16 mx-auto mb-4 opacity-30" />
+              <p className="font-medium text-lg">No videos found</p>
+              <p className="text-sm mt-1">Upload your first video or paste a YouTube link</p>
             </div>
           ) : (
-            <div className="space-y-4 max-w-3xl mx-auto">
-              {filteredVideos.map(v => (
-                <button key={v.id} onClick={() => setSelectedVideo(v)} className="w-full text-left group">
-                  <div className="rounded-xl overflow-hidden bg-muted aspect-video relative">
-                    {v.video_type === 'youtube' ? (
-                      <img
-                        src={v.thumbnail_url || `https://img.youtube.com/vi/${extractYouTubeId(v.video_url)}/hqdefault.jpg`}
-                        alt={v.title}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <video src={v.video_url} className="w-full h-full object-cover" muted preload="metadata" />
-                    )}
-                    <div className="absolute inset-0 flex items-center justify-center bg-foreground/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Play className="h-12 w-12 text-card fill-card drop-shadow-lg" />
-                    </div>
-                  </div>
-                  <div className="flex gap-3 mt-2">
-                    <Avatar className="h-9 w-9 mt-0.5">
-                      <AvatarImage src={v.avatar_url || undefined} />
-                      <AvatarFallback className="text-xs bg-muted">{(v.username || 'U')[0].toUpperCase()}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm line-clamp-2">{v.title || 'Untitled'}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {v.username} · {v.likeCount} likes · {formatDistanceToNow(new Date(v.created_at), { addSuffix: true })}
-                      </p>
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
+            <>
+              {/* Category chips */}
+              <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
+                {['All', 'Music', 'Gaming', 'Education', 'Entertainment', 'Sports', 'News'].map(cat => (
+                  <button key={cat} className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${cat === 'All' ? 'bg-foreground text-background' : 'bg-secondary text-foreground hover:bg-muted'}`}>
+                    {cat}
+                  </button>
+                ))}
+              </div>
+
+              {/* Video grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-8">
+                {filteredVideos.map(v => (
+                  <VideoCard key={v.id} video={v} onClick={() => setSelectedVideo(v)} />
+                ))}
+              </div>
+            </>
           )}
-        </div>
+        </main>
       )}
     </div>
+  );
+}
+
+/* ── Video Card (thumbnail) ── */
+function VideoCard({ video, onClick }: { video: YTVideo; onClick: () => void }) {
+  const ytId = extractYouTubeId(video.video_url);
+  const thumb = video.thumbnail_url || (ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : null);
+
+  return (
+    <button onClick={onClick} className="w-full text-left group">
+      <div className="rounded-xl overflow-hidden bg-muted aspect-video relative">
+        {thumb ? (
+          <img src={thumb} alt={video.title} className="w-full h-full object-cover" loading="lazy" />
+        ) : (
+          <video src={video.video_url} className="w-full h-full object-cover" muted preload="metadata" />
+        )}
+        <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/10 transition-colors" />
+        <div className="absolute bottom-2 right-2 bg-foreground/80 text-background text-[10px] px-1.5 py-0.5 rounded font-medium">
+          3:45
+        </div>
+      </div>
+      <div className="flex gap-3 mt-3">
+        <Avatar className="h-9 w-9 flex-shrink-0">
+          <AvatarImage src={video.avatar_url || undefined} />
+          <AvatarFallback className="text-xs bg-muted">{(video.username || 'U')[0].toUpperCase()}</AvatarFallback>
+        </Avatar>
+        <div className="flex-1 min-w-0">
+          <p className="font-medium text-sm leading-5 line-clamp-2">{video.title || 'Untitled'}</p>
+          <p className="text-xs text-muted-foreground mt-1">{video.username}</p>
+          <p className="text-xs text-muted-foreground">
+            {(video.likeCount || 0).toLocaleString()} likes · {formatDistanceToNow(new Date(video.created_at), { addSuffix: true })}
+          </p>
+        </div>
+      </div>
+    </button>
   );
 }
 
@@ -205,7 +278,6 @@ function UploadForm({ userId, onDone }: { userId: string; onDone: () => void }) 
       const { error: upErr } = await supabase.storage.from('youtube-videos').upload(path, file);
       if (upErr) throw upErr;
       const { data: urlData } = supabase.storage.from('youtube-videos').getPublicUrl(path);
-
       const { error } = await supabase.from('youtube_videos').insert({
         user_id: userId, title: title.trim(), description: description.trim(),
         video_url: urlData.publicUrl, video_type: 'upload',
@@ -237,13 +309,12 @@ function UploadForm({ userId, onDone }: { userId: string; onDone: () => void }) 
 
   return (
     <div className="space-y-4">
-      <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="Video title *" />
+      <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="Title *" />
       <Textarea value={description} onChange={e => setDescription(e.target.value)} placeholder="Description (optional)" rows={2} />
-
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="w-full">
-          <TabsTrigger value="upload" className="flex-1 gap-1"><Upload className="h-4 w-4" /> Upload</TabsTrigger>
-          <TabsTrigger value="youtube" className="flex-1 gap-1"><Link className="h-4 w-4" /> YouTube URL</TabsTrigger>
+          <TabsTrigger value="upload" className="flex-1 gap-1.5"><Upload className="h-4 w-4" /> Upload</TabsTrigger>
+          <TabsTrigger value="youtube" className="flex-1 gap-1.5"><LinkIcon className="h-4 w-4" /> YouTube URL</TabsTrigger>
         </TabsList>
         <TabsContent value="upload" className="space-y-3 pt-2">
           <input ref={fileRef} type="file" accept="video/*" hidden onChange={e => e.target.files?.[0] && setFile(e.target.files[0])} />
@@ -265,7 +336,7 @@ function UploadForm({ userId, onDone }: { userId: string; onDone: () => void }) 
   );
 }
 
-/* ── Video Player ── */
+/* ── Video Player Page ── */
 function VideoPlayer({ video, user, onBack }: { video: YTVideo; user: any; onBack: () => void }) {
   const [liked, setLiked] = useState(video.liked || false);
   const [likeCount, setLikeCount] = useState(video.likeCount || 0);
@@ -273,8 +344,9 @@ function VideoPlayer({ video, user, onBack }: { video: YTVideo; user: any; onBac
   const [newComment, setNewComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [showDesc, setShowDesc] = useState(false);
+  const isSample = video.id.startsWith('sample-');
 
-  useEffect(() => { loadComments(); }, [video.id]);
+  useEffect(() => { if (!isSample) loadComments(); }, [video.id]);
 
   const loadComments = async () => {
     const { data } = await supabase
@@ -292,7 +364,7 @@ function VideoPlayer({ video, user, onBack }: { video: YTVideo; user: any; onBac
   };
 
   const toggleLike = async () => {
-    if (!user) return;
+    if (!user || isSample) return;
     if (liked) {
       await supabase.from('youtube_likes').delete().eq('video_id', video.id).eq('user_id', user.id);
       setLiked(false); setLikeCount(p => p - 1);
@@ -304,23 +376,19 @@ function VideoPlayer({ video, user, onBack }: { video: YTVideo; user: any; onBac
 
   const submitComment = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newComment.trim() || !user || submitting) return;
+    if (!newComment.trim() || !user || submitting || isSample) return;
     setSubmitting(true);
     try {
-      // Check user status
       const { data: prof } = await supabase.from('profiles').select('is_banned, is_suspended').eq('user_id', user.id).maybeSingle();
       if (prof?.is_banned) { toast.error('🚫 Your account has been banned.'); setSubmitting(false); return; }
       if (prof?.is_suspended) { toast.error('⚠️ Your account is suspended.'); setSubmitting(false); return; }
 
-      // Moderate comment
       const resp = await supabase.functions.invoke('moderate-content', {
         body: { type: 'text', content: newComment, userId: user.id },
       });
       if (resp.data?.flagged) {
         toast.error('⚠️ Your comment was detected as cyberbullying and has been removed.', { duration: 5000 });
-        setNewComment('');
-        setSubmitting(false);
-        return;
+        setNewComment(''); setSubmitting(false); return;
       }
 
       const { error } = await supabase.from('youtube_comments').insert({
@@ -341,95 +409,125 @@ function VideoPlayer({ video, user, onBack }: { video: YTVideo; user: any; onBac
   const ytId = extractYouTubeId(video.video_url);
 
   return (
-    <div className="max-w-4xl mx-auto">
-      {/* Video */}
-      <div className="aspect-video bg-foreground">
-        {video.video_type === 'youtube' && ytId ? (
-          <iframe
-            src={`https://www.youtube.com/embed/${ytId}?autoplay=1`}
-            className="w-full h-full"
-            allow="autoplay; encrypted-media"
-            allowFullScreen
-          />
-        ) : (
-          <video src={video.video_url} controls autoPlay className="w-full h-full" />
-        )}
-      </div>
+    <div className="max-w-5xl mx-auto flex flex-col lg:flex-row gap-6 p-4">
+      <div className="flex-1">
+        {/* Video embed */}
+        <div className="aspect-video bg-foreground rounded-xl overflow-hidden">
+          {video.video_type === 'youtube' && ytId ? (
+            <iframe
+              src={`https://www.youtube.com/embed/${ytId}?autoplay=1`}
+              className="w-full h-full"
+              allow="autoplay; encrypted-media"
+              allowFullScreen
+            />
+          ) : (
+            <video src={video.video_url} controls autoPlay className="w-full h-full" />
+          )}
+        </div>
 
-      <div className="p-4 space-y-3">
         {/* Title */}
-        <h1 className="text-lg font-semibold leading-snug">{video.title || 'Untitled'}</h1>
+        <h1 className="text-xl font-bold mt-4 leading-snug">{video.title || 'Untitled'}</h1>
 
-        {/* Channel + actions */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Avatar className="h-8 w-8">
+        {/* Channel + Actions row */}
+        <div className="flex items-center justify-between mt-3 flex-wrap gap-3">
+          <div className="flex items-center gap-3">
+            <Avatar className="h-10 w-10">
               <AvatarImage src={video.avatar_url || undefined} />
-              <AvatarFallback className="text-xs bg-muted">{(video.username || 'U')[0].toUpperCase()}</AvatarFallback>
+              <AvatarFallback className="bg-muted font-bold">{(video.username || 'U')[0].toUpperCase()}</AvatarFallback>
             </Avatar>
-            <span className="font-medium text-sm">{video.username}</span>
+            <div>
+              <p className="font-semibold text-sm">{video.username}</p>
+              <p className="text-xs text-muted-foreground">Content Creator</p>
+            </div>
+            <Button size="sm" className="rounded-full ml-2 bg-foreground text-background hover:bg-foreground/80">Subscribe</Button>
           </div>
+
           <div className="flex items-center gap-2">
-            <Button variant={liked ? 'default' : 'secondary'} size="sm" onClick={toggleLike} className="gap-1.5 rounded-full">
-              <ThumbsUp className={`h-4 w-4 ${liked ? 'fill-current' : ''}`} /> {likeCount}
-            </Button>
-            <Button variant="secondary" size="sm" className="gap-1.5 rounded-full" onClick={() => { navigator.clipboard.writeText(window.location.href); toast.success('Link copied'); }}>
+            <div className="flex items-center bg-secondary rounded-full overflow-hidden">
+              <button onClick={toggleLike} className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium hover:bg-muted transition-colors ${liked ? 'text-primary' : ''}`}>
+                <ThumbsUp className={`h-4 w-4 ${liked ? 'fill-current' : ''}`} /> {likeCount.toLocaleString()}
+              </button>
+              <div className="w-px h-6 bg-border" />
+              <button className="px-3 py-2 hover:bg-muted transition-colors">
+                <ThumbsUp className="h-4 w-4 rotate-180" />
+              </button>
+            </div>
+            <Button variant="secondary" size="sm" className="rounded-full gap-1.5" onClick={() => { navigator.clipboard.writeText(window.location.href); toast.success('Link copied'); }}>
               <Share2 className="h-4 w-4" /> Share
             </Button>
           </div>
         </div>
 
-        {/* Description */}
-        {video.description && (
-          <button onClick={() => setShowDesc(!showDesc)} className="w-full text-left bg-secondary rounded-xl p-3">
-            <p className="text-xs text-muted-foreground mb-1">{formatDistanceToNow(new Date(video.created_at), { addSuffix: true })}</p>
-            <p className={`text-sm ${showDesc ? '' : 'line-clamp-2'}`}>{video.description}</p>
-          </button>
-        )}
+        {/* Description box */}
+        <button onClick={() => setShowDesc(!showDesc)} className="w-full text-left bg-secondary rounded-xl p-3 mt-3">
+          <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground mb-1">
+            <span>{likeCount.toLocaleString()} likes</span>
+            <span>·</span>
+            <span>{formatDistanceToNow(new Date(video.created_at), { addSuffix: true })}</span>
+          </div>
+          <p className={`text-sm ${showDesc ? '' : 'line-clamp-2'}`}>{video.description || 'No description'}</p>
+          {!showDesc && <span className="text-xs font-semibold mt-1 block">Show more</span>}
+        </button>
 
-        {/* Comments */}
-        <div className="pt-2 border-t border-border">
-          <h2 className="font-semibold text-sm mb-3">{comments.length} Comments</h2>
+        {/* Comments section */}
+        <div className="mt-6">
+          <h2 className="font-bold text-base mb-4">{comments.length} Comments</h2>
 
-          <form onSubmit={submitComment} className="flex gap-2 mb-4">
-            <Input
-              value={newComment}
-              onChange={e => setNewComment(e.target.value)}
-              placeholder="Add a comment..."
-              className="flex-1 bg-secondary border-0 text-sm"
-              disabled={submitting}
-            />
-            <Button type="submit" size="icon" variant="ghost" disabled={submitting || !newComment.trim()}>
-              <Send className="h-4 w-4" />
-            </Button>
-          </form>
+          {!isSample && (
+            <form onSubmit={submitComment} className="flex items-start gap-3 mb-6">
+              <Avatar className="h-8 w-8 mt-1">
+                <AvatarFallback className="text-xs bg-muted">U</AvatarFallback>
+              </Avatar>
+              <div className="flex-1">
+                <Input
+                  value={newComment}
+                  onChange={e => setNewComment(e.target.value)}
+                  placeholder="Add a comment..."
+                  className="bg-transparent border-0 border-b border-border rounded-none px-0 focus-visible:ring-0 focus-visible:border-foreground text-sm"
+                  disabled={submitting}
+                />
+                <div className="flex justify-end gap-2 mt-2">
+                  <Button type="button" variant="ghost" size="sm" onClick={() => setNewComment('')} className="rounded-full">Cancel</Button>
+                  <Button type="submit" size="sm" disabled={submitting || !newComment.trim()} className="rounded-full bg-primary text-primary-foreground">
+                    {submitting ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : null} Comment
+                  </Button>
+                </div>
+              </div>
+            </form>
+          )}
 
-          <div className="space-y-3 max-h-96 overflow-y-auto">
+          <div className="space-y-4">
             {comments.map(c => (
-              <div key={c.id} className="flex gap-2.5 group">
-                <Avatar className="h-7 w-7 mt-0.5">
+              <div key={c.id} className="flex gap-3 group">
+                <Avatar className="h-8 w-8 flex-shrink-0">
                   <AvatarImage src={c.avatar_url || undefined} />
-                  <AvatarFallback className="text-[10px] bg-muted">{(c.username || 'U')[0].toUpperCase()}</AvatarFallback>
+                  <AvatarFallback className="text-xs bg-muted">{(c.username || 'U')[0].toUpperCase()}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="font-medium text-xs">@{c.username}</span>
-                    <span className="text-[10px] text-muted-foreground">{formatDistanceToNow(new Date(c.created_at), { addSuffix: true })}</span>
+                    <span className="text-[11px] text-muted-foreground">{formatDistanceToNow(new Date(c.created_at), { addSuffix: true })}</span>
                   </div>
                   <p className="text-sm mt-0.5">{c.content}</p>
+                  <div className="flex items-center gap-3 mt-1.5">
+                    <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"><ThumbsUp className="h-3.5 w-3.5" /></button>
+                    <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"><ThumbsUp className="h-3.5 w-3.5 rotate-180" /></button>
+                    <button className="text-xs font-medium text-muted-foreground hover:text-foreground">Reply</button>
+                  </div>
                 </div>
                 {user && user.id === c.user_id && (
-                  <button onClick={() => deleteComment(c.id)} className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive p-1">
-                    <Trash2 className="h-3.5 w-3.5" />
+                  <button onClick={() => deleteComment(c.id)} className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive p-1 transition-opacity">
+                    <Trash2 className="h-4 w-4" />
                   </button>
                 )}
               </div>
             ))}
-            {comments.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No comments yet. Be the first!</p>}
+            {isSample && <p className="text-sm text-muted-foreground text-center py-4">Comments are available for uploaded videos</p>}
+            {!isSample && comments.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No comments yet. Be the first!</p>}
           </div>
         </div>
 
-        <Button variant="outline" onClick={onBack} className="mt-4"><ArrowLeft className="h-4 w-4 mr-2" /> Back to videos</Button>
+        <Button variant="ghost" onClick={onBack} className="mt-6 gap-2"><ArrowLeft className="h-4 w-4" /> Back to videos</Button>
       </div>
     </div>
   );

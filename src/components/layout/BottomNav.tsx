@@ -17,10 +17,10 @@ export default function BottomNav() {
       <div className="max-w-lg mx-auto flex items-center justify-around h-12">
         {/* Home */}
         <Link
-          to="/"
-          className={`flex flex-col items-center justify-center p-2 transition-opacity ${isActive('/') ? 'opacity-100' : 'opacity-50 hover:opacity-80'}`}
+          to="/instagram"
+          className={`flex flex-col items-center justify-center p-2 transition-opacity ${isActive('/instagram') ? 'opacity-100' : 'opacity-50 hover:opacity-80'}`}
         >
-          <Home className="h-6 w-6" strokeWidth={isActive('/') ? 2.5 : 1.5} />
+          <Home className="h-6 w-6" strokeWidth={isActive('/instagram') ? 2.5 : 1.5} />
         </Link>
 
         {/* Search / Explore */}
@@ -32,7 +32,7 @@ export default function BottomNav() {
         </Link>
 
         {/* Create Post (center) */}
-        <CreatePost onCreated={() => navigate('/')} />
+        <CreatePost onCreated={() => navigate('/instagram')} />
 
         {/* Reels */}
         <Link
@@ -40,14 +40,6 @@ export default function BottomNav() {
           className={`flex flex-col items-center justify-center p-2 transition-opacity ${isActive('/reels') ? 'opacity-100' : 'opacity-50 hover:opacity-80'}`}
         >
           <Film className="h-6 w-6" strokeWidth={isActive('/reels') ? 2.5 : 1.5} />
-        </Link>
-
-        {/* YouTube */}
-        <Link
-          to="/youtube"
-          className={`flex flex-col items-center justify-center p-2 transition-opacity ${isActive('/youtube') ? 'opacity-100' : 'opacity-50 hover:opacity-80'}`}
-        >
-          <Play className="h-6 w-6" strokeWidth={isActive('/youtube') ? 2.5 : 1.5} />
         </Link>
 
         {/* Profile */}
