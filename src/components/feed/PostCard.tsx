@@ -56,6 +56,7 @@ export default function PostCard({ post, posterUsername, posterAvatarUrl, onDele
   const [deleted, setDeleted] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
   const [doubleTapHeart, setDoubleTapHeart] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
 
   const canDelete = user && (user.id === post.user_id || isAdmin);
 
