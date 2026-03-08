@@ -3,10 +3,21 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import AppHeader from '@/components/layout/AppHeader';
 import AvatarUpload from '@/components/profile/AvatarUpload';
-import { Loader2, Pencil, Check, X } from 'lucide-react';
+import { Loader2, Pencil, Check, X, Grid3X3, Bookmark, UserSquare2, Settings, Plus, Heart, MessageCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+
+type ProfileTab = 'posts' | 'saved' | 'tagged';
+
+const HIGHLIGHT_ICONS = [
+  { label: 'Travel', emoji: '✈️' },
+  { label: 'Food', emoji: '🍕' },
+  { label: 'Fitness', emoji: '💪' },
+  { label: 'Music', emoji: '🎵' },
+  { label: 'Pets', emoji: '🐾' },
+];
 
 export default function Profile() {
   const { user, profile } = useAuth();
@@ -15,9 +26,20 @@ export default function Profile() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [followerCount, setFollowerCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
+  const [activeTab, setActiveTab] = useState<ProfileTab>('posts');
+
+  // Edit states
   const [editingUsername, setEditingUsername] = useState(false);
   const [newUsername, setNewUsername] = useState('');
   const [savingUsername, setSavingUsername] = useState(false);
+
+  const [editingBio, setEditingBio] = useState(false);
+  const [newBio, setNewBio] = useState('');
+  const [savingBio, setSavingBio] = useState(false);
+
+  const [editingName, setEditingName] = useState(false);
+  const [newFullName, setNewFullName] = useState('');
+  const [savingName, setSavingName] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -45,7 +67,6 @@ export default function Profile() {
     }
     setSavingUsername(true);
     try {
-      // Check if username is taken
       const { data: existing } = await supabase
         .from('profiles')
         .select('id')
@@ -64,7 +85,6 @@ export default function Profile() {
       if (error) throw error;
       toast.success('Username updated!');
       setEditingUsername(false);
-      // Force page reload to update profile context
       window.location.reload();
     } catch (err: any) {
       toast.error(err.message || 'Failed to update username');
@@ -73,27 +93,78 @@ export default function Profile() {
     }
   };
 
+  const handleSaveBio = async () => {
+    if (!user) return;
+    setSavingBio(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ bio: newBio.trim() })
+        .eq('user_id', user.id);
+      if (error) throw error;
+      toast.success('Bio updated!');
+      setEditingBio(false);
+      window.location.reload();
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to update bio');
+    } finally {
+      setSavingBio(false);
+    }
+  };
+
+  const handleSaveFullName = async () => {
+    if (!user || !newFullName.trim()) return;
+    if (newFullName.trim() === profile?.full_name) {
+      setEditingName(false);
+      return;
+    }
+    setSavingName(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ full_name: newFullName.trim() })
+        .eq('user_id', user.id);
+      if (error) throw error;
+      toast.success('Name updated!');
+      setEditingName(false);
+      window.location.reload();
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to update name');
+    } finally {
+      setSavingName(false);
+    }
+  };
+
   if (loading) return <div className="flex min-h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
 
   return (
-    <div className="min-h-screen bg-secondary/30 animate-page-enter">
+    <div className="min-h-screen bg-background animate-page-enter">
       <AppHeader />
-      <main className="max-w-4xl mx-auto px-4 pt-20 pb-8">
-        <div className="flex items-center gap-8 mb-8">
-          <AvatarUpload
-            size="h-20 w-20"
-            avatarUrl={avatarUrl}
-            username={profile?.username}
-            onUploaded={(url) => setAvatarUrl(url)}
-          />
-          <div>
-            <div className="flex items-center gap-2">
+      <main className="max-w-[935px] mx-auto px-4 pt-20 pb-8">
+
+        {/* === Profile Header Section === */}
+        <div className="flex flex-col md:flex-row items-start gap-6 md:gap-16 mb-6 md:mb-10">
+
+          {/* Avatar — large, centered on mobile */}
+          <div className="flex-shrink-0 mx-auto md:mx-0 md:ml-8">
+            <AvatarUpload
+              size="h-[86px] w-[86px] md:h-[150px] md:w-[150px]"
+              avatarUrl={avatarUrl}
+              username={profile?.username}
+              onUploaded={(url) => setAvatarUrl(url)}
+            />
+          </div>
+
+          {/* Info Column */}
+          <div className="flex-1 w-full">
+            {/* Row 1: Username + Edit Profile + Settings */}
+            <div className="flex flex-wrap items-center gap-3 mb-4">
               {editingUsername ? (
                 <div className="flex items-center gap-1">
                   <Input
                     value={newUsername}
                     onChange={e => setNewUsername(e.target.value)}
-                    className="h-8 w-40 text-sm"
+                    className="h-8 w-44 text-sm"
                     autoFocus
                     onKeyDown={e => e.key === 'Enter' && handleSaveUsername()}
                   />
@@ -105,33 +176,227 @@ export default function Profile() {
                   </Button>
                 </div>
               ) : (
+                <h1 className="text-xl font-normal tracking-tight">{profile?.username}</h1>
+              )}
+
+              {!editingUsername && (
                 <>
-                  <h1 className="text-xl font-semibold">{profile?.username}</h1>
-                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={handleEditUsername}>
-                    <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="h-8 rounded-lg text-sm font-semibold px-4"
+                    onClick={handleEditUsername}
+                  >
+                    Edit profile
+                  </Button>
+                  <Button variant="secondary" size="icon" className="h-8 w-8 rounded-lg">
+                    <Settings className="h-4 w-4" />
                   </Button>
                 </>
               )}
             </div>
-            <p className="text-muted-foreground text-sm">{profile?.full_name}</p>
-            <div className="flex gap-4 text-sm mt-1">
-              <span><span className="font-semibold">{posts.length}</span> posts</span>
-              <span><span className="font-semibold">{followerCount}</span> followers</span>
-              <span><span className="font-semibold">{followingCount}</span> following</span>
+
+            {/* Row 2: Stats */}
+            <div className="flex gap-8 mb-4">
+              <div className="text-sm">
+                <span className="font-semibold">{posts.length}</span>{' '}
+                <span className="text-foreground">posts</span>
+              </div>
+              <div className="text-sm cursor-pointer hover:opacity-70">
+                <span className="font-semibold">{followerCount}</span>{' '}
+                <span className="text-foreground">followers</span>
+              </div>
+              <div className="text-sm cursor-pointer hover:opacity-70">
+                <span className="font-semibold">{followingCount}</span>{' '}
+                <span className="text-foreground">following</span>
+              </div>
             </div>
-            {profile?.bio && <p className="text-sm mt-1">{profile.bio}</p>}
+
+            {/* Row 3: Name */}
+            <div className="mb-1">
+              {editingName ? (
+                <div className="flex items-center gap-1">
+                  <Input
+                    value={newFullName}
+                    onChange={e => setNewFullName(e.target.value)}
+                    className="h-7 w-48 text-sm font-semibold"
+                    autoFocus
+                    onKeyDown={e => e.key === 'Enter' && handleSaveFullName()}
+                    placeholder="Your name"
+                  />
+                  <Button size="icon" variant="ghost" className="h-6 w-6" onClick={handleSaveFullName} disabled={savingName}>
+                    <Check className="h-3.5 w-3.5 text-green-500" />
+                  </Button>
+                  <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => setEditingName(false)}>
+                    <X className="h-3.5 w-3.5 text-destructive" />
+                  </Button>
+                </div>
+              ) : (
+                <button
+                  className="text-sm font-semibold hover:opacity-70 transition-opacity flex items-center gap-1"
+                  onClick={() => { setNewFullName(profile?.full_name || ''); setEditingName(true); }}
+                >
+                  {profile?.full_name || 'Add your name'}
+                  <Pencil className="h-3 w-3 text-muted-foreground" />
+                </button>
+              )}
+            </div>
+
+            {/* Row 4: Bio */}
+            <div className="max-w-sm">
+              {editingBio ? (
+                <div className="space-y-1">
+                  <Textarea
+                    value={newBio}
+                    onChange={e => setNewBio(e.target.value)}
+                    className="text-sm resize-none min-h-[60px]"
+                    placeholder="Write something about yourself..."
+                    maxLength={150}
+                    autoFocus
+                  />
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs text-muted-foreground flex-1">{newBio.length}/150</span>
+                    <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={handleSaveBio} disabled={savingBio}>
+                      <Check className="h-3.5 w-3.5 mr-1" /> Save
+                    </Button>
+                    <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => setEditingBio(false)}>
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  className="text-sm text-foreground text-left hover:opacity-70 transition-opacity block"
+                  onClick={() => { setNewBio(profile?.bio || ''); setEditingBio(true); }}
+                >
+                  {profile?.bio || (
+                    <span className="text-muted-foreground italic">+ Add bio</span>
+                  )}
+                </button>
+              )}
+            </div>
           </div>
         </div>
-        <div className="border-t border-border pt-4">
-          <div className="grid grid-cols-3 gap-1">
-            {posts.map(post => (
-              <div key={post.id} className="aspect-square">
-                <img src={post.image_url} alt="" className="w-full h-full object-cover rounded" loading="lazy" />
+
+        {/* === Story Highlights === */}
+        <div className="mb-6 border-b border-border pb-6">
+          <div className="flex gap-6 overflow-x-auto scrollbar-hide px-2">
+            {/* Add new highlight */}
+            <div className="flex flex-col items-center gap-1.5 flex-shrink-0 cursor-pointer group">
+              <div className="w-[64px] h-[64px] md:w-[77px] md:h-[77px] rounded-full border border-border flex items-center justify-center bg-background group-hover:bg-secondary transition-colors">
+                <Plus className="h-6 w-6 text-muted-foreground group-hover:text-foreground transition-colors" />
+              </div>
+              <span className="text-[11px] text-foreground font-normal max-w-[64px] md:max-w-[77px] truncate text-center">
+                New
+              </span>
+            </div>
+
+            {/* Placeholder highlights */}
+            {HIGHLIGHT_ICONS.map((h) => (
+              <div key={h.label} className="flex flex-col items-center gap-1.5 flex-shrink-0 cursor-pointer group">
+                <div className="w-[64px] h-[64px] md:w-[77px] md:h-[77px] rounded-full border border-border flex items-center justify-center bg-background group-hover:bg-secondary transition-colors">
+                  <span className="text-2xl">{h.emoji}</span>
+                </div>
+                <span className="text-[11px] text-foreground font-normal max-w-[64px] md:max-w-[77px] truncate text-center">
+                  {h.label}
+                </span>
               </div>
             ))}
           </div>
-          {posts.length === 0 && <p className="text-center text-muted-foreground py-10">No posts yet.</p>}
         </div>
+
+        {/* === Tab Navigation === */}
+        <div className="flex justify-center border-t border-border">
+          <button
+            className={`flex items-center gap-1.5 px-4 py-3 text-xs font-semibold tracking-wider uppercase transition-colors border-t -mt-px ${
+              activeTab === 'posts'
+                ? 'border-foreground text-foreground'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`}
+            onClick={() => setActiveTab('posts')}
+          >
+            <Grid3X3 className="h-3.5 w-3.5" />
+            Posts
+          </button>
+          <button
+            className={`flex items-center gap-1.5 px-4 py-3 text-xs font-semibold tracking-wider uppercase transition-colors border-t -mt-px ${
+              activeTab === 'saved'
+                ? 'border-foreground text-foreground'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`}
+            onClick={() => setActiveTab('saved')}
+          >
+            <Bookmark className="h-3.5 w-3.5" />
+            Saved
+          </button>
+          <button
+            className={`flex items-center gap-1.5 px-4 py-3 text-xs font-semibold tracking-wider uppercase transition-colors border-t -mt-px ${
+              activeTab === 'tagged'
+                ? 'border-foreground text-foreground'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`}
+            onClick={() => setActiveTab('tagged')}
+          >
+            <UserSquare2 className="h-3.5 w-3.5" />
+            Tagged
+          </button>
+        </div>
+
+        {/* === Posts Grid === */}
+        {activeTab === 'posts' && (
+          <div className="pt-1">
+            <div className="grid grid-cols-3 gap-1">
+              {posts.map(post => (
+                <div key={post.id} className="aspect-square relative group cursor-pointer overflow-hidden">
+                  <img
+                    src={post.image_url}
+                    alt={post.caption || ''}
+                    className="w-full h-full object-cover transition-opacity group-hover:opacity-80"
+                    loading="lazy"
+                  />
+                  {/* Hover overlay with like/comment counts */}
+                  <div className="absolute inset-0 bg-foreground/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-6">
+                    <div className="flex items-center gap-1.5 text-background font-semibold text-sm">
+                      <Heart className="h-5 w-5 fill-background" />
+                    </div>
+                    <div className="flex items-center gap-1.5 text-background font-semibold text-sm">
+                      <MessageCircle className="h-5 w-5 fill-background" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {posts.length === 0 && (
+              <div className="text-center py-16">
+                <div className="w-16 h-16 mx-auto rounded-full border-2 border-foreground flex items-center justify-center mb-4">
+                  <Grid3X3 className="h-7 w-7" />
+                </div>
+                <h3 className="text-2xl font-light mb-2">Share Photos</h3>
+                <p className="text-sm text-muted-foreground">When you share photos, they will appear on your profile.</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'saved' && (
+          <div className="text-center py-16">
+            <div className="w-16 h-16 mx-auto rounded-full border-2 border-foreground flex items-center justify-center mb-4">
+              <Bookmark className="h-7 w-7" />
+            </div>
+            <h3 className="text-2xl font-light mb-2">Save</h3>
+            <p className="text-sm text-muted-foreground">Save photos and videos that you want to see again.</p>
+          </div>
+        )}
+
+        {activeTab === 'tagged' && (
+          <div className="text-center py-16">
+            <div className="w-16 h-16 mx-auto rounded-full border-2 border-foreground flex items-center justify-center mb-4">
+              <UserSquare2 className="h-7 w-7" />
+            </div>
+            <h3 className="text-2xl font-light mb-2">Photos of you</h3>
+            <p className="text-sm text-muted-foreground">When people tag you in photos, they'll appear here.</p>
+          </div>
+        )}
       </main>
     </div>
   );
