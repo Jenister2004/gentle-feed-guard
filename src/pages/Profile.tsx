@@ -254,9 +254,16 @@ export default function Profile() {
             </button>
             <span className="font-semibold text-base">{profile?.username || 'Profile'}</span>
           </div>
-          <button onClick={async () => { await signOut(); navigate('/auth'); }} className="p-1 hover:opacity-60 transition-opacity text-destructive" title="Log out">
-            <LogOut className="h-5 w-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            {isAdmin && (
+              <button onClick={() => navigate('/admin')} className="p-1 hover:opacity-60 transition-opacity text-primary" title="Admin Dashboard">
+                <ShieldCheck className="h-5 w-5" />
+              </button>
+            )}
+            <button onClick={async () => { await signOut(); navigate('/auth'); }} className="p-1 hover:opacity-60 transition-opacity text-destructive" title="Log out">
+              <LogOut className="h-5 w-5" />
+            </button>
+          </div>
         </div>
       </div>
       <main className="max-w-[935px] mx-auto px-4 pt-16 pb-8">
