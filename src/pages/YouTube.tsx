@@ -123,9 +123,24 @@ export default function YouTube() {
           liked: !!likeData,
         };
       }));
-      setVideos(enriched);
+      // Always add sample videos alongside user uploads
+      const sampleVids: YTVideo[] = SAMPLE_VIDEOS.map((sv, i) => ({
+        id: `sample-${i}`,
+        user_id: '',
+        title: sv.title,
+        description: sv.desc,
+        video_url: `https://www.youtube.com/watch?v=${sv.ytId}`,
+        thumbnail_url: `https://img.youtube.com/vi/${sv.ytId}/hqdefault.jpg`,
+        video_type: 'youtube',
+        created_at: new Date(Date.now() - (i + 1) * 3600000).toISOString(),
+        username: sv.channel,
+        avatar_url: null,
+        likeCount: Math.floor(Math.random() * 50000) + 100,
+        commentCount: Math.floor(Math.random() * 5000) + 10,
+        liked: false,
+      }));
+      setVideos([...enriched, ...sampleVids]);
     } else {
-      // Show sample videos as placeholders
       setVideos(SAMPLE_VIDEOS.map((sv, i) => ({
         id: `sample-${i}`,
         user_id: '',
@@ -134,11 +149,11 @@ export default function YouTube() {
         video_url: `https://www.youtube.com/watch?v=${sv.ytId}`,
         thumbnail_url: `https://img.youtube.com/vi/${sv.ytId}/hqdefault.jpg`,
         video_type: 'youtube',
-        created_at: new Date(Date.now() - i * 86400000).toISOString(),
-        username: 'YouTube',
+        created_at: new Date(Date.now() - (i + 1) * 3600000).toISOString(),
+        username: sv.channel,
         avatar_url: null,
-        likeCount: Math.floor(Math.random() * 1000),
-        commentCount: Math.floor(Math.random() * 100),
+        likeCount: Math.floor(Math.random() * 50000) + 100,
+        commentCount: Math.floor(Math.random() * 5000) + 10,
         liked: false,
       })));
     }
