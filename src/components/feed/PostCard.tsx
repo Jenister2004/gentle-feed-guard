@@ -337,6 +337,14 @@ export default function PostCard({ post, posterUsername, posterAvatarUrl, onDele
         </div>
       )}
 
+      <ShareDialog
+        open={shareOpen}
+        onOpenChange={setShareOpen}
+        postId={post.id}
+        posterUsername={posterUsername}
+        caption={post.caption}
+      />
+
       <style>{`
         @keyframes heart-burst-post {
           0% { opacity: 0; transform: scale(0); }
