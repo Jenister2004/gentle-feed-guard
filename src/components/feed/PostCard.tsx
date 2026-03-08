@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 import GifPicker from '@/components/feed/GifPicker';
+import ShareDialog from '@/components/feed/ShareDialog';
 import EmojiPicker from '@/components/feed/EmojiPicker';
 import FollowButton from '@/components/profile/FollowButton';
 import {
