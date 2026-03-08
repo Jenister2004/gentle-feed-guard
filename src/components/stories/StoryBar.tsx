@@ -15,6 +15,7 @@ export default function StoryBar() {
   const { user } = useAuth();
   const [storyGroups, setStoryGroups] = useState<StoryGroup[]>([]);
   const [viewingGroup, setViewingGroup] = useState<StoryGroup | null>(null);
+  const [clickedUserId, setClickedUserId] = useState<string | null>(null);
 
   const loadStories = async () => {
     const { data } = await supabase
@@ -36,7 +37,6 @@ export default function StoryBar() {
       const groups: StoryGroup[] = [];
       const seen = new Set<string>();
 
-      // Show current user's stories first
       if (user) {
         const userStories = data.filter(s => s.user_id === user.id);
         if (userStories.length > 0) {
@@ -70,6 +70,15 @@ export default function StoryBar() {
     loadStories();
   }, []);
 
+  const handleStoryClick = (group: StoryGroup) => {
+    setClickedUserId(group.userId);
+    // Brief scale animation before opening
+    setTimeout(() => {
+      setViewingGroup(group);
+      setClickedUserId(null);
+    }, 200);
+  };
+
   return (
     <>
       <div className="bg-card border border-border rounded-lg p-4 mb-4 animate-fade-in">
@@ -78,10 +87,16 @@ export default function StoryBar() {
           {storyGroups.map(group => (
             <button
               key={group.userId}
-              onClick={() => setViewingGroup(group)}
-              className="flex flex-col items-center gap-1 flex-shrink-0 icon-click"
+              onClick={() => handleStoryClick(group)}
+              className="flex flex-col items-center gap-1 flex-shrink-0 group"
             >
-              <div className="w-16 h-16 rounded-full p-[2px] instagram-gradient">
+              <div
+                className={`w-16 h-16 rounded-full p-[2px] instagram-gradient transition-transform duration-200 ${
+                  clickedUserId === group.userId
+                    ? 'scale-90 opacity-80'
+                    : 'group-hover:scale-105 group-active:scale-90'
+                }`}
+              >
                 <div className="w-full h-full rounded-full bg-card flex items-center justify-center p-[2px]">
                   <Avatar className="w-full h-full">
                     <AvatarFallback className="text-xs font-semibold bg-muted">
@@ -102,6 +117,7 @@ export default function StoryBar() {
         <StoryViewer
           group={viewingGroup}
           onClose={() => setViewingGroup(null)}
+          onDeleted={loadStories}
         />
       )}
     </>
