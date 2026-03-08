@@ -318,7 +318,7 @@ export default function PostCard({ post, posterUsername, posterAvatarUrl, onDele
                 <div className="flex-1">
                   <span className="font-semibold">{c.profile?.username}</span>{' '}
                   {c.gif_url ? (
-                    <img src={c.gif_url} alt="GIF" className="mt-1 rounded max-w-[200px] max-h-[150px]" />
+                    <img src={c.gif_url} alt="GIF" className="mt-1 rounded max-w-[200px] max-h-[150px]" loading="lazy" />
                   ) : (
                     c.content
                   )}
