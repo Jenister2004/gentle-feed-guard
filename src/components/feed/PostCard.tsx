@@ -68,8 +68,6 @@ export default function PostCard({ post, posterUsername, posterAvatarUrl, onDele
     }
   };
 
-  if (deleted) return null;
-
   useEffect(() => {
     if (!user) return;
     supabase.from('likes').select('id').eq('post_id', post.id).eq('user_id', user.id).maybeSingle().then(({ data }) => setLiked(!!data));
@@ -80,6 +78,8 @@ export default function PostCard({ post, posterUsername, posterAvatarUrl, onDele
     if (!showComments) return;
     loadComments();
   }, [showComments]);
+
+  if (deleted) return null;
 
   const loadComments = async () => {
     const { data } = await supabase
