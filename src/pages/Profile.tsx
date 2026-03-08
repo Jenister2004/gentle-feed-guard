@@ -493,32 +493,7 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* === Story Highlights === */}
-        <div className="mb-6 border-b border-border pb-6">
-          <div className="flex gap-6 overflow-x-auto scrollbar-hide px-2">
-            {/* Add new highlight */}
-            <div className="flex flex-col items-center gap-1.5 flex-shrink-0 cursor-pointer group">
-              <div className="w-[64px] h-[64px] md:w-[77px] md:h-[77px] rounded-full border border-border flex items-center justify-center bg-background group-hover:bg-secondary transition-colors">
-                <Plus className="h-6 w-6 text-muted-foreground group-hover:text-foreground transition-colors" />
-              </div>
-              <span className="text-[11px] text-foreground font-normal max-w-[64px] md:max-w-[77px] truncate text-center">
-                New
-              </span>
-            </div>
-
-            {/* Placeholder highlights */}
-            {HIGHLIGHT_ICONS.map((h) => (
-              <div key={h.label} className="flex flex-col items-center gap-1.5 flex-shrink-0 cursor-pointer group">
-                <div className="w-[64px] h-[64px] md:w-[77px] md:h-[77px] rounded-full border border-border flex items-center justify-center bg-background group-hover:bg-secondary transition-colors">
-                  <span className="text-2xl">{h.emoji}</span>
-                </div>
-                <span className="text-[11px] text-foreground font-normal max-w-[64px] md:max-w-[77px] truncate text-center">
-                  {h.label}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
+        <HighlightSection />
 
         {/* === Tab Navigation === */}
         <div className="flex justify-center border-t border-border">
