@@ -54,6 +54,10 @@ export default function StoryViewer({ group, onClose, onDeleted }: StoryViewerPr
   const [showViewers, setShowViewers] = useState(false);
   const [viewers, setViewers] = useState<{ username: string; avatar_url: string | null }[]>([]);
 
+  // Swipe gesture state
+  const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
+  const [touchDelta, setTouchDelta] = useState(0);
+
   const story = stories[currentIndex];
   const isOwner = user?.id === group.userId;
 
