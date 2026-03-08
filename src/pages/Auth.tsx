@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { Camera, Shield } from 'lucide-react';
+import { Shield } from 'lucide-react';
+import InstagramLogo from '@/components/icons/InstagramLogo';
 import { supabase } from '@/integrations/supabase/client';
 
 export default function Auth() {
