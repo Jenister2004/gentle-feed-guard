@@ -43,6 +43,7 @@ const App = () => (
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/youtube" element={<YouTube />} />
             <Route path="/youtube-auth" element={<YouTubeAuth />} />
+            <Route path="/youtube-profile" element={<YouTubeProfile />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
