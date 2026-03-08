@@ -244,8 +244,16 @@ export default function Profile() {
 
   return (
     <div className="min-h-screen bg-background animate-page-enter">
-      <AppHeader />
-      <main className="max-w-[935px] mx-auto px-4 pt-20 pb-8">
+      {/* Back button header */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-card border-b border-border">
+        <div className="max-w-lg mx-auto px-4 h-12 flex items-center">
+          <button onClick={() => navigate(-1)} className="p-1 hover:opacity-60 transition-opacity mr-3">
+            <ArrowLeft className="h-6 w-6" />
+          </button>
+          <span className="font-semibold text-base">{profile?.username || 'Profile'}</span>
+        </div>
+      </div>
+      <main className="max-w-[935px] mx-auto px-4 pt-16 pb-8">
 
         {/* === Profile Header Section === */}
         <div className="flex flex-col md:flex-row items-start gap-6 md:gap-16 mb-6 md:mb-10">
