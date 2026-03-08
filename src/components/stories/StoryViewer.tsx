@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { X, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, MoreVertical, Trash2, Flag, Heart, Eye } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -14,6 +14,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface StoryGroup {
   userId: string;
@@ -36,8 +42,19 @@ export default function StoryViewer({ group, onClose, onDeleted }: StoryViewerPr
   const [imageTransition, setImageTransition] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [paused, setPaused] = useState(false);
-  const story = stories[currentIndex];
+  const [menuOpen, setMenuOpen] = useState(false);
 
+  // Like state
+  const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+  const [animateHeart, setAnimateHeart] = useState(false);
+
+  // Views state
+  const [viewCount, setViewCount] = useState(0);
+  const [showViewers, setShowViewers] = useState(false);
+  const [viewers, setViewers] = useState<{ username: string; avatar_url: string | null }[]>([]);
+
+  const story = stories[currentIndex];
   const isOwner = user?.id === group.userId;
 
   const handleClose = useCallback(() => {
@@ -45,8 +62,33 @@ export default function StoryViewer({ group, onClose, onDeleted }: StoryViewerPr
     setTimeout(() => onClose(), 280);
   }, [onClose]);
 
+  // Record view + load like/view data when story changes
   useEffect(() => {
-    if (paused || confirmDelete) return;
+    if (!story || !user) return;
+
+    // Record view (ignore errors for duplicates)
+    if (user.id !== group.userId) {
+      supabase.from('story_views').insert({ story_id: story.id, viewer_id: user.id }).then(() => {});
+    }
+
+    // Load like state
+    supabase.from('story_likes').select('id').eq('story_id', story.id).eq('user_id', user.id).maybeSingle()
+      .then(({ data }) => setLiked(!!data));
+
+    // Load like count
+    supabase.from('story_likes').select('id', { count: 'exact', head: true }).eq('story_id', story.id)
+      .then(({ count }) => setLikeCount(count || 0));
+
+    // Load view count (owner only)
+    if (isOwner) {
+      supabase.from('story_views').select('id', { count: 'exact', head: true }).eq('story_id', story.id)
+        .then(({ count }) => setViewCount(count || 0));
+    }
+  }, [story?.id, user?.id]);
+
+  // Timer
+  useEffect(() => {
+    if (paused || confirmDelete || menuOpen || showViewers) return;
     setProgress(0);
     const interval = setInterval(() => {
       setProgress(prev => {
@@ -66,9 +108,8 @@ export default function StoryViewer({ group, onClose, onDeleted }: StoryViewerPr
         return prev + 2;
       });
     }, 100);
-
     return () => clearInterval(interval);
-  }, [currentIndex, stories.length, handleClose, paused, confirmDelete]);
+  }, [currentIndex, stories.length, handleClose, paused, confirmDelete, menuOpen, showViewers]);
 
   const goNext = () => {
     if (currentIndex < stories.length - 1) {
@@ -97,21 +138,65 @@ export default function StoryViewer({ group, onClose, onDeleted }: StoryViewerPr
   const deleteStory = async () => {
     if (!story) return;
     const { error } = await supabase.from('stories').delete().eq('id', story.id);
-    if (error) {
-      toast.error('Failed to delete story');
-      return;
-    }
+    if (error) { toast.error('Failed to delete story'); return; }
     toast.success('Story deleted');
     const remaining = stories.filter((_, i) => i !== currentIndex);
     onDeleted?.();
-    if (remaining.length === 0) {
-      handleClose();
-      return;
-    }
+    if (remaining.length === 0) { handleClose(); return; }
     setStories(remaining);
     setCurrentIndex(Math.min(currentIndex, remaining.length - 1));
     setProgress(0);
     setConfirmDelete(false);
+  };
+
+  const toggleLike = async () => {
+    if (!story || !user) return;
+    if (liked) {
+      await supabase.from('story_likes').delete().eq('story_id', story.id).eq('user_id', user.id);
+      setLiked(false);
+      setLikeCount(c => Math.max(0, c - 1));
+    } else {
+      await supabase.from('story_likes').insert({ story_id: story.id, user_id: user.id });
+      setLiked(true);
+      setLikeCount(c => c + 1);
+      setAnimateHeart(true);
+      setTimeout(() => setAnimateHeart(false), 600);
+    }
+  };
+
+  const reportUser = () => {
+    const reason = window.prompt('Why are you reporting this story?');
+    if (!reason || !story || !user) return;
+    supabase.from('flagged_content').insert({
+      content_type: 'story',
+      content_id: story.id,
+      user_id: user.id,
+      reason,
+      original_content: story.image_url,
+      action_taken: 'pending_review',
+    }).then(({ error }) => {
+      if (error) toast.error('Failed to report');
+      else toast.success('Story reported. We will review it.');
+    });
+  };
+
+  const loadViewers = async () => {
+    if (!story) return;
+    const { data } = await supabase
+      .from('story_views')
+      .select('viewer_id')
+      .eq('story_id', story.id);
+    if (data && data.length > 0) {
+      const ids = data.map(v => v.viewer_id);
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, username, avatar_url')
+        .in('user_id', ids);
+      setViewers((profiles || []).map(p => ({ username: p.username, avatar_url: p.avatar_url })));
+    } else {
+      setViewers([]);
+    }
+    setShowViewers(true);
   };
 
   if (!story) return null;
@@ -136,6 +221,12 @@ export default function StoryViewer({ group, onClose, onDeleted }: StoryViewerPr
         @keyframes story-image-in {
           0% { opacity: 0; transform: scale(1.05); }
           100% { opacity: 1; transform: scale(1); }
+        }
+        @keyframes heart-burst {
+          0% { transform: scale(1); }
+          30% { transform: scale(1.4); }
+          60% { transform: scale(0.9); }
+          100% { transform: scale(1); }
         }
       `}</style>
 
@@ -165,23 +256,43 @@ export default function StoryViewer({ group, onClose, onDeleted }: StoryViewerPr
               {formatDistanceToNow(new Date(story.created_at), { addSuffix: true })}
             </span>
           </div>
-          <div className="flex items-center gap-2">
-            {isOwner && (
-              <button
-                onClick={(e) => { e.stopPropagation(); setConfirmDelete(true); }}
-                className="text-white/70 hover:text-destructive transition-colors active:scale-90"
-                title="Delete story"
-              >
-                <Trash2 className="h-5 w-5" />
-              </button>
-            )}
-            <button onClick={handleClose} className="text-white hover:opacity-70 transition-all active:scale-90">
-              <X className="h-6 w-6" />
+          <div className="flex items-center gap-1">
+            {/* 3-dot menu */}
+            <DropdownMenu onOpenChange={setMenuOpen}>
+              <DropdownMenuTrigger asChild>
+                <button
+                  onClick={e => e.stopPropagation()}
+                  className="text-white hover:opacity-70 transition-all active:scale-90 p-1"
+                >
+                  <MoreVertical className="h-5 w-5" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="min-w-[160px]">
+                {isOwner && (
+                  <DropdownMenuItem
+                    onClick={() => setConfirmDelete(true)}
+                    className="text-destructive focus:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete story
+                  </DropdownMenuItem>
+                )}
+                {!isOwner && (
+                  <DropdownMenuItem onClick={reportUser}>
+                    <Flag className="h-4 w-4 mr-2" />
+                    Report
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <button onClick={handleClose} className="text-white hover:opacity-70 transition-all active:scale-90 p-1">
+              <X className="h-5 w-5" />
             </button>
           </div>
         </div>
 
-        {/* Story image with transition */}
+        {/* Story image */}
         <img
           key={story.id}
           src={story.image_url}
@@ -193,8 +304,8 @@ export default function StoryViewer({ group, onClose, onDeleted }: StoryViewerPr
         />
 
         {/* Navigation areas */}
-        <button onClick={goPrev} className="absolute left-0 top-16 bottom-16 w-1/3 z-10" aria-label="Previous story" />
-        <button onClick={goNext} className="absolute right-0 top-16 bottom-16 w-1/3 z-10" aria-label="Next story" />
+        <button onClick={goPrev} className="absolute left-0 top-16 bottom-24 w-1/3 z-10" aria-label="Previous story" />
+        <button onClick={goNext} className="absolute right-0 top-16 bottom-24 w-1/3 z-10" aria-label="Next story" />
 
         {/* Nav arrows */}
         {currentIndex > 0 && (
@@ -207,9 +318,37 @@ export default function StoryViewer({ group, onClose, onDeleted }: StoryViewerPr
             <ChevronRight className="h-5 w-5" />
           </button>
         )}
+
+        {/* Bottom bar — Like + Views */}
+        <div className="absolute bottom-3 left-3 right-3 z-10 flex items-center justify-between">
+          {/* Like button */}
+          <button
+            onClick={e => { e.stopPropagation(); toggleLike(); }}
+            className="flex items-center gap-1.5 text-white active:scale-90 transition-transform"
+          >
+            <Heart
+              className={`h-6 w-6 transition-all ${liked ? 'fill-destructive text-destructive' : 'text-white'}`}
+              style={animateHeart ? { animation: 'heart-burst 0.5s ease-out' } : undefined}
+            />
+            {likeCount > 0 && (
+              <span className="text-white text-xs font-semibold">{likeCount}</span>
+            )}
+          </button>
+
+          {/* View count — only for owner */}
+          {isOwner && (
+            <button
+              onClick={e => { e.stopPropagation(); loadViewers(); }}
+              className="flex items-center gap-1.5 text-white/80 hover:text-white transition-colors active:scale-90"
+            >
+              <Eye className="h-5 w-5" />
+              <span className="text-xs font-semibold">{viewCount}</span>
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Delete confirmation dialog */}
+      {/* Delete confirmation */}
       <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -226,6 +365,47 @@ export default function StoryViewer({ group, onClose, onDeleted }: StoryViewerPr
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Viewers sheet */}
+      {showViewers && (
+        <div className="fixed inset-0 z-[110] flex items-end justify-center" onClick={() => setShowViewers(false)}>
+          <div
+            className="bg-card w-full max-w-sm rounded-t-2xl p-4 max-h-[50vh] animate-slide-in-right"
+            style={{ animation: 'slide-up 0.3s ease-out' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <style>{`
+              @keyframes slide-up {
+                from { transform: translateY(100%); }
+                to { transform: translateY(0); }
+              }
+            `}</style>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-semibold text-sm flex items-center gap-1.5">
+                <Eye className="h-4 w-4 text-muted-foreground" />
+                Viewers · {viewers.length}
+              </h3>
+              <button onClick={() => setShowViewers(false)} className="text-muted-foreground hover:text-foreground">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="space-y-3 overflow-y-auto max-h-[35vh]">
+              {viewers.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">No views yet</p>
+              ) : (
+                viewers.map((v, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full instagram-gradient flex items-center justify-center">
+                      <span className="text-xs font-bold text-white">{v.username[0]?.toUpperCase()}</span>
+                    </div>
+                    <span className="text-sm font-medium">{v.username}</span>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

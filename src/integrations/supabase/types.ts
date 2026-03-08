@@ -279,6 +279,48 @@ export type Database = {
         }
         Relationships: []
       }
+      story_likes: {
+        Row: {
+          created_at: string
+          id: string
+          story_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          story_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          story_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      story_views: {
+        Row: {
+          created_at: string
+          id: string
+          story_id: string
+          viewer_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          story_id: string
+          viewer_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          story_id?: string
+          viewer_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
