@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 import GifPicker from '@/components/feed/GifPicker';
+import ShareDialog from '@/components/feed/ShareDialog';
 import EmojiPicker from '@/components/feed/EmojiPicker';
 import FollowButton from '@/components/profile/FollowButton';
 import {
@@ -55,6 +56,7 @@ export default function PostCard({ post, posterUsername, posterAvatarUrl, onDele
   const [deleted, setDeleted] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
   const [doubleTapHeart, setDoubleTapHeart] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
 
   const canDelete = user && (user.id === post.user_id || isAdmin);
 
@@ -205,15 +207,8 @@ export default function PostCard({ post, posterUsername, posterAvatarUrl, onDele
     else toast.success('Comment reported.');
   };
 
-  const sharePost = async () => {
-    const url = `${window.location.origin}/post/${post.id}`;
-    if (navigator.share) {
-      try { await navigator.share({ title: `Post by ${posterUsername}`, text: post.caption || '', url }); }
-      catch { /* user cancelled */ }
-    } else {
-      await navigator.clipboard.writeText(url);
-      toast.success('Link copied to clipboard!');
-    }
+  const sharePost = () => {
+    setShareOpen(true);
   };
 
   return (
@@ -341,6 +336,14 @@ export default function PostCard({ post, posterUsername, posterAvatarUrl, onDele
           </form>
         </div>
       )}
+
+      <ShareDialog
+        open={shareOpen}
+        onOpenChange={setShareOpen}
+        postId={post.id}
+        posterUsername={posterUsername}
+        caption={post.caption}
+      />
 
       <style>{`
         @keyframes heart-burst-post {
