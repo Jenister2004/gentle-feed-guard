@@ -1,0 +1,11 @@
+id,post_id,user_id,content,gif_url,is_flagged,flag_reason,is_deleted,created_at
+bb1f44d5-6a5c-4f1b-a7d5-6212ae466cbd,eccdab12-0f53-4c7a-8638-322e687e070a,e2e06410-50da-4b29-b03b-97c504901272,cutiieee,,false,,false,2026-02-16 18:53:12
+3bab9ee8-193d-4b89-8833-b6a20fe6bf12,eccdab12-0f53-4c7a-8638-322e687e070a,e2e06410-50da-4b29-b03b-97c504901272,fuck,,false,,true,2026-02-16 18:54:10
+ec09effc-316c-405b-92e8-9e6430a4191f,eccdab12-0f53-4c7a-8638-322e687e070a,d4b620f3-b285-4260-8f22-8b5f5e1c6fe0,[GIF],https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNWE2OGZjbjNqcHdtOGJ3Y2Z4d3AybGkzcTNha2d1eGdrMWpzNGZ5aCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/l1J9u3TZfpmeDLkD6/giphy.gif,false,,false,2026-02-18 18:10:31
+da01da99-9452-4026-97f6-51872b368809,eccdab12-0f53-4c7a-8638-322e687e070a,d4b620f3-b285-4260-8f22-8b5f5e1c6fe0,[GIF],https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNXh3d3FuZm9hNzEya2FlZ3cyZDR3dGx0MnI0dHk5dXB5cGZxZ3JuZiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/l3q2K5jinAlChoCLS/giphy.gif,false,,false,2026-02-18 18:13:39
+dc4fb364-1551-4319-bee2-f95de1935352,eccdab12-0f53-4c7a-8638-322e687e070a,879b5c6a-f991-4e6f-8e1f-be8683cd1f48,nyc,,false,,true,2026-02-19 17:35:02
+adcf8e8e-37f6-4be6-bba9-c0b1865327ee,eccdab12-0f53-4c7a-8638-322e687e070a,879b5c6a-f991-4e6f-8e1f-be8683cd1f48,[GIF],https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNzJpbjk4cHpya2p6OGRzZjhwNnBhcjQ1aGZtMGw1Z3VpNjM2cyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3oEjHFOscgNwdSRRDy/giphy.gif,false,,true,2026-02-19 17:35:32
+d4a0d8d6-a1af-4823-b26a-40eee229ecd8,d90eb833-46c1-4ce1-99be-d9bc22945a21,67809a23-34a0-41ca-88ce-36eb3a990f5d,hello test comment,,false,,true,2026-02-20 17:59:00
+0a78db4d-db5d-4edd-95a5-368956965c3b,eccdab12-0f53-4c7a-8638-322e687e070a,63edacff-f1d4-4ebb-9611-cc3771119571,hiii,,false,,false,2026-03-03 04:26:16
+004d2490-147d-44cd-8e49-284a8c58d710,5ad1e530-4741-4098-af39-9f8df53dd994,e2e06410-50da-4b29-b03b-97c504901272,nyc,,false,,false,2026-03-03 08:32:41
+e468bc0f-ec9d-4517-89db-04a6a52e4588,5ad1e530-4741-4098-af39-9f8df53dd994,63edacff-f1d4-4ebb-9611-cc3771119571,nyc,,false,,false,2026-03-08 14:18:26
