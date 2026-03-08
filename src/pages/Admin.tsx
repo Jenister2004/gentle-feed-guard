@@ -100,6 +100,19 @@ export default function Admin() {
     else toast.error('Failed to delete comment');
   };
 
+  const adminDeletePost = async (postId: string, imageUrl: string) => {
+    try {
+      const path = imageUrl.split('/post-images/')[1];
+      if (path) await supabase.storage.from('post-images').remove([path]);
+      const { error } = await supabase.from('posts').delete().eq('id', postId);
+      if (error) throw error;
+      toast.success('Post deleted');
+      loadPosts();
+    } catch {
+      toast.error('Failed to delete post');
+    }
+  };
+
   if (authLoading) return <div className="flex min-h-screen items-center justify-center bg-[#0a0a0a]"><Loader2 className="h-8 w-8 animate-spin text-green-500" /></div>;
   if (!isAdmin) return <Navigate to="/" replace />;
   if (loading) return <div className="flex min-h-screen items-center justify-center bg-[#0a0a0a]"><Loader2 className="h-8 w-8 animate-spin text-green-500" /></div>;
@@ -313,6 +326,11 @@ export default function Admin() {
                       <span className="bg-red-500/80 text-red-100 text-[10px] px-1.5 py-0.5 rounded font-mono">[FLAGGED]</span>
                     </div>
                   )}
+                  <div className="absolute top-1 left-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => adminDeletePost(p.id, p.image_url)} className="bg-red-500/80 hover:bg-red-500 text-white p-1 rounded" title="Delete post">
+                      <Trash2 className="h-3 w-3" />
+                    </button>
+                  </div>
                   <div className="absolute bottom-0 left-0 right-0 bg-black/80 text-green-400 text-[10px] p-1 opacity-0 group-hover:opacity-100 transition-opacity font-mono">
                     {p.caption || '// no caption'}
                   </div>
