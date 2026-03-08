@@ -124,20 +124,18 @@ const BAD_WORDS = [
 // Sexual / body-shaming emoji patterns
 const SEXUAL_EMOJIS = ['🍑', '🍆', '💦', '🌭', '🥒', '🍌', '👅', '🫦'];
 
+// Only flag emoji combos when there's NO innocent text context
+// e.g. "🍑🍆💦" alone = flag, but "nice peach smoothie 🍑" = allow
 function containsSexualEmojiCombo(text: string): { found: boolean; reason: string } {
   const found = SEXUAL_EMOJIS.filter(e => text.includes(e));
-  if (found.length >= 2) {
+  
+  // 3+ sexual emojis together is almost always harassment
+  if (found.length >= 3) {
     return { found: true, reason: `Sexual harassment emoji combination detected: ${found.join(' ')}` };
   }
-  if (found.length >= 1) {
-    const lower = text.toLowerCase();
-    const bodyWords = ['ass', 'butt', 'booty', 'dick', 'cock', 'cum', 'wet', 'suck', 'lick', 'ride', 'smash', 'bang', 'pound', 'thicc', 'thick', 'juicy', 'tight', 'hole', 'big', 'size', 'huge', 'small', 'tiny'];
-    for (const w of bodyWords) {
-      if (lower.includes(w)) {
-        return { found: true, reason: `Sexual body-shaming detected: ${found.join('')} with "${w}"` };
-      }
-    }
-  }
+  
+  // For 1-2 emojis, DON'T auto-flag — let the AI analyze context instead
+  // This allows "nice food 🍆" or "you are cute 🌶️" to pass through
   return { found: false, reason: '' };
 }
 
