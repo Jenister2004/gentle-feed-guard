@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import AppHeader from '@/components/layout/AppHeader';
 import AvatarUpload from '@/components/profile/AvatarUpload';
-import { Loader2, Pencil, Check, X, Grid3X3, Bookmark, UserSquare2, Settings, Plus, Heart, MessageCircle, Lock, Globe, UserCheck, UserX, Bell, ArrowLeft, LogOut } from 'lucide-react';
+import { Loader2, Pencil, Check, X, Grid3X3, Bookmark, UserSquare2, Settings, Plus, Heart, MessageCircle, Lock, Globe, UserCheck, UserX, Bell, ArrowLeft, LogOut, ShieldCheck } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -31,7 +31,7 @@ const HIGHLIGHT_ICONS = [
 ];
 
 export default function Profile() {
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, signOut, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -254,9 +254,16 @@ export default function Profile() {
             </button>
             <span className="font-semibold text-base">{profile?.username || 'Profile'}</span>
           </div>
-          <button onClick={async () => { await signOut(); navigate('/auth'); }} className="p-1 hover:opacity-60 transition-opacity text-destructive" title="Log out">
-            <LogOut className="h-5 w-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            {isAdmin && (
+              <button onClick={() => navigate('/admin')} className="p-1 hover:opacity-60 transition-opacity text-primary" title="Admin Dashboard">
+                <ShieldCheck className="h-5 w-5" />
+              </button>
+            )}
+            <button onClick={async () => { await signOut(); navigate('/auth'); }} className="p-1 hover:opacity-60 transition-opacity text-destructive" title="Log out">
+              <LogOut className="h-5 w-5" />
+            </button>
+          </div>
         </div>
       </div>
       <main className="max-w-[935px] mx-auto px-4 pt-16 pb-8">
