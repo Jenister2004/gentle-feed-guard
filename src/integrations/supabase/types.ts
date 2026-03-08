@@ -186,6 +186,62 @@ export type Database = {
         }
         Relationships: []
       }
+      highlight_items: {
+        Row: {
+          created_at: string
+          highlight_id: string
+          id: string
+          image_url: string
+        }
+        Insert: {
+          created_at?: string
+          highlight_id: string
+          id?: string
+          image_url: string
+        }
+        Update: {
+          created_at?: string
+          highlight_id?: string
+          id?: string
+          image_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "highlight_items_highlight_id_fkey"
+            columns: ["highlight_id"]
+            isOneToOne: false
+            referencedRelation: "highlights"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      highlights: {
+        Row: {
+          cover_url: string | null
+          created_at: string
+          emoji: string
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          cover_url?: string | null
+          created_at?: string
+          emoji?: string
+          id?: string
+          name?: string
+          user_id: string
+        }
+        Update: {
+          cover_url?: string | null
+          created_at?: string
+          emoji?: string
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       likes: {
         Row: {
           created_at: string
