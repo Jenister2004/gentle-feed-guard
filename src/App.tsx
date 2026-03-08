@@ -13,6 +13,7 @@ import ResetPassword from "./pages/ResetPassword";
 import Messages from "./pages/Messages";
 import Reels from "./pages/Reels";
 import Explore from "./pages/Explore";
+import Notifications from "./pages/Notifications";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
