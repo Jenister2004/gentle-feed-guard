@@ -2,9 +2,8 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
-import { Search, Loader2 } from 'lucide-react';
+import { Search, Loader2, ArrowLeft } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import AppHeader from '@/components/layout/AppHeader';
 import BottomNav from '@/components/layout/BottomNav';
 
 interface ExplorePost {
@@ -51,7 +50,14 @@ export default function Explore() {
 
   return (
     <div className="min-h-screen bg-background">
-      <AppHeader />
+      <div className="fixed top-0 left-0 right-0 z-50 bg-card border-b border-border">
+        <div className="max-w-lg mx-auto px-4 h-12 flex items-center">
+          <button onClick={() => navigate(-1)} className="p-1 hover:opacity-60 transition-opacity mr-3">
+            <ArrowLeft className="h-6 w-6" />
+          </button>
+          <span className="font-semibold text-base">Explore</span>
+        </div>
+      </div>
       <div className="pt-12 pb-16 max-w-lg mx-auto">
         {/* Search */}
         <div className="p-3">
