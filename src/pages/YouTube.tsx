@@ -60,7 +60,7 @@ function extractYouTubeId(url: string): string | null {
 }
 
 export default function YouTube() {
-  const { user, profile } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [videos, setVideos] = useState<YTVideo[]>([]);
   const [loading, setLoading] = useState(true);
@@ -70,9 +70,9 @@ export default function YouTube() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    if (!user) { navigate('/auth'); return; }
-    loadVideos();
-  }, [user]);
+    if (!user && !authLoading) { navigate('/auth'); return; }
+    if (user) loadVideos();
+  }, [user, authLoading]);
 
   const loadVideos = async () => {
     setLoading(true);
