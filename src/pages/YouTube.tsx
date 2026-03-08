@@ -543,8 +543,7 @@ function VideoPlayer({ video: initialVideo, user, onBack }: { video: YTVideo; us
                 )}
               </div>
             ))}
-            {isSample && <p className="text-sm text-muted-foreground text-center py-4">Comments are available for uploaded videos</p>}
-            {!isSample && comments.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No comments yet. Be the first!</p>}
+            {comments.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No comments yet. Be the first!</p>}
           </div>
         </div>
 
