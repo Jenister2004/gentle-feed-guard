@@ -181,10 +181,15 @@ export default function YouTube() {
                 <UploadForm userId={user.id} onDone={() => { setUploadOpen(false); loadVideos(); }} />
               </DialogContent>
             </Dialog>
+            {isAdmin && (
+              <button onClick={() => navigate('/admin')} className="p-2 hover:bg-secondary rounded-full" title="Admin Dashboard">
+                <Shield className="h-5 w-5" />
+              </button>
+            )}
             <button className="p-2 hover:bg-secondary rounded-full">
               <Bell className="h-5 w-5" />
             </button>
-            <Avatar className="h-8 w-8 cursor-pointer" onClick={() => navigate('/profile')}>
+            <Avatar className="h-8 w-8 cursor-pointer" onClick={() => navigate('/youtube-profile')}>
               <AvatarImage src={profile?.avatar_url || undefined} />
               <AvatarFallback className="text-xs bg-muted">{profile?.username?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
             </Avatar>
