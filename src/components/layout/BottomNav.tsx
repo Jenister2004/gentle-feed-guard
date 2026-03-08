@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Search, Film, User, PlusSquare } from 'lucide-react';
+import { Home, Search, Film, User, PlusSquare, Play } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import CreatePost from '@/components/feed/CreatePost';
@@ -40,6 +40,14 @@ export default function BottomNav() {
           className={`flex flex-col items-center justify-center p-2 transition-opacity ${isActive('/reels') ? 'opacity-100' : 'opacity-50 hover:opacity-80'}`}
         >
           <Film className="h-6 w-6" strokeWidth={isActive('/reels') ? 2.5 : 1.5} />
+        </Link>
+
+        {/* YouTube */}
+        <Link
+          to="/youtube"
+          className={`flex flex-col items-center justify-center p-2 transition-opacity ${isActive('/youtube') ? 'opacity-100' : 'opacity-50 hover:opacity-80'}`}
+        >
+          <Play className="h-6 w-6" strokeWidth={isActive('/youtube') ? 2.5 : 1.5} />
         </Link>
 
         {/* Profile */}
