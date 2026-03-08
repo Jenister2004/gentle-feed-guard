@@ -1,0 +1,8 @@
+id,user_id,username,full_name,avatar_url,bio,is_suspended,is_banned,warning_count,created_at,updated_at
+8873d78a-a332-47f4-a5ec-f7d255e27ee6,e2e06410-50da-4b29-b03b-97c504901272,kommuu,komali,https://wvcfhzsbmtcqmdscnggz.supabase.co/storage/v1/object/public/avatar-images/e2e06410-50da-4b29-b03b-97c504901272/avatar.jpg,,false,false,10,2026-02-16 18:51:21,2026-03-03 08:32:32
+674390ef-1081-4073-a025-81d81a6f790a,ad4b3c2e-23cd-4ad5-8021-4f4044e09f97,Shimpu,Shimpu,,,false,false,1,2026-02-16 18:56:27,2026-02-16 18:56:47
+74803d65-f6ee-4bce-be00-5bb5d70c9cd1,d4b620f3-b285-4260-8f22-8b5f5e1c6fe0,man,demo,,,false,false,1,2026-02-18 18:09:43,2026-02-18 18:14:44
+d7e12841-7f6e-4433-81f8-1a167f6e84b0,4af96309-5d23-4e07-828f-c300cf6a3eb9,Mon,Suji,,,false,false,1,2026-02-19 06:58:05,2026-02-19 06:58:33
+a28a94f5-3dd0-490b-82b9-52eef61f67c0,67809a23-34a0-41ca-88ce-36eb3a990f5d,me,me,,,false,false,1,2026-02-19 17:14:20,2026-02-20 17:59:52
+3c5fe46c-9b50-41fe-8f0a-7dfcc902c2cc,879b5c6a-f991-4e6f-8e1f-be8683cd1f48,kt,njan,,,false,false,3,2026-02-19 17:33:55,2026-02-19 17:38:04
+523273d9-ca89-4d4d-9349-dea4790edadf,63edacff-f1d4-4ebb-9611-cc3771119571,jeni123,jeni ms,,,false,false,8,2026-03-03 03:53:52,2026-03-08 14:30:46

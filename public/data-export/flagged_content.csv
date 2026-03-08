@@ -1,0 +1,25 @@
+id,content_type,content_id,user_id,original_content,reason,action_taken,reviewed,created_at
+828da300-2c1e-4149-8cc9-721a50dd6293,text,,e2e06410-50da-4b29-b03b-97c504901272,ugly bitch,"Contains gender-based slurs and targeted physical harassment.",auto_deleted,false,2026-02-16 18:52:54
+4c55e444-4b64-4fb9-ab9e-1145a9c8edf8,text,,ad4b3c2e-23cd-4ad5-8021-4f4044e09f97,Ugly,"Targeted appearance-based harassment/insult.",auto_deleted,false,2026-02-16 18:56:47
+6526fb8e-c931-40f1-ae4f-1d566e354d53,gif,,d4b620f3-b285-4260-8f22-8b5f5e1c6fe0,https://media.giphy.com/media/3o7btT1T9qpQZWhNlK/giphy.gif,"Known cyberbullying content detected by CNN classification model",auto_deleted,false,2026-02-18 18:14:43
+9d40daf7-9c56-4648-8951-410c430d630e,text,,4af96309-5d23-4e07-828f-c300cf6a3eb9,Ugly,"Targeted appearance-based harassment/insult.",auto_deleted,false,2026-02-19 06:58:33
+e3668f73-3f12-45e5-b713-1c87e0d71dfa,gif,,879b5c6a-f991-4e6f-8e1f-be8683cd1f48,https://media.giphy.com/media/3o6Zt4HU9uwXmXSAuI/giphy.gif,"Known cyberbullying content detected by CNN classification model",auto_deleted,false,2026-02-19 17:34:40
+b6a7f059-61aa-432d-bce0-58fbf561e52b,text,,879b5c6a-f991-4e6f-8e1f-be8683cd1f48,ugly bitch,"Profanity/harassment detected: contains blocked word bitch",auto_deleted,false,2026-02-19 17:34:52
+88ed04c1-b18a-4c5f-b0f7-c9063c354f57,gif,,879b5c6a-f991-4e6f-8e1f-be8683cd1f48,https://media.giphy.com/media/xT1XGWbE0XiBDX2T8Q/giphy.gif,"Known cyberbullying content detected by CNN classification model",auto_deleted,false,2026-02-19 17:38:03
+a2f3c71f-8893-4bf3-8682-3b8b27f6620a,text,,67809a23-34a0-41ca-88ce-36eb3a990f5d,you are such a fucking idiot,"Profanity/harassment detected: contains blocked word fuck",auto_deleted,false,2026-02-20 17:59:52
+90de9eb9-aa39-4bc6-a742-9f15be0f4433,image,,e2e06410-50da-4b29-b03b-97c504901272,story-image-url,"The image contains embedded text with profanity (BAD BITCH).",auto_deleted,false,2026-02-21 07:48:25
+a56bf898-2995-4f57-b375-47c9a32170fb,text,,e2e06410-50da-4b29-b03b-97c504901272,fuck you,"Profanity/harassment detected: contains blocked word fuck",auto_deleted,false,2026-02-21 07:49:44
+056f1440-3fe0-47f4-9d01-3404c9996da2,text,,e2e06410-50da-4b29-b03b-97c504901272,emoji-combo,"Profanity/harassment detected: Sexual harassment emoji combination",auto_deleted,false,2026-02-23 17:53:34
+9bc18e55-cf48-4947-8785-80360dec9341,text,,e2e06410-50da-4b29-b03b-97c504901272,ugly bitch emoji,"Profanity/harassment detected: contains blocked word bitch",auto_deleted,false,2026-03-03 03:38:28
+d10038dd-5d1f-420f-8984-becf16ee5af4,text,,63edacff-f1d4-4ebb-9611-cc3771119571,fuck,"Profanity/harassment detected: contains blocked word fuck",auto_deleted,true,2026-03-03 03:54:13
+270e719f-617d-4d20-aaf4-adf22fe74dc3,text,,e2e06410-50da-4b29-b03b-97c504901272,ugly,"Profanity/harassment detected: contains blocked word ugly",auto_deleted,false,2026-03-03 03:59:08
+2687c283-39d4-41dd-a8f9-82e960c4394d,text,,63edacff-f1d4-4ebb-9611-cc3771119571,ugly,"Profanity/harassment detected: contains blocked word ugly",auto_deleted,false,2026-03-03 04:25:54
+3ac2b0ec-b597-4df9-9c47-118f578a3284,image,,63edacff-f1d4-4ebb-9611-cc3771119571,post-image-url,"The image contains profanity (BAD BITCH).",auto_deleted,false,2026-03-03 08:15:31
+467958ba-902c-450d-9166-b438321296b2,gif,,63edacff-f1d4-4ebb-9611-cc3771119571,https://media.giphy.com/media/xT1XGWbE0XiBDX2T8Q/giphy.gif,"Known cyberbullying content detected by CNN classification model",auto_deleted,false,2026-03-03 08:15:59
+90a2bacb-e5a7-4dd2-b8c2-6be5b4b6ffb3,text,,e2e06410-50da-4b29-b03b-97c504901272,masss emoji,"Profanity/harassment detected: contains blocked word ass",auto_deleted,false,2026-03-03 08:31:59
+93a94585-74e5-4c6c-b7ad-8d89802b85ae,text,,e2e06410-50da-4b29-b03b-97c504901272,masss emoji,"Profanity/harassment detected: contains blocked word ass",auto_deleted,false,2026-03-03 08:32:20
+55d9cd1e-eb64-472c-b61e-cfe30124e74a,text,,e2e06410-50da-4b29-b03b-97c504901272,mass,"Profanity/harassment detected: contains blocked word ass",auto_deleted,false,2026-03-03 08:32:31
+9db48b53-6aa7-4e78-a7bb-2d70e7be4c1d,text,,63edacff-f1d4-4ebb-9611-cc3771119571,ugly,"Profanity/harassment detected: contains blocked word ugly",auto_deleted,false,2026-03-03 09:03:48
+4909234c-cad5-4f4b-8c35-9e54411340e3,gif,,63edacff-f1d4-4ebb-9611-cc3771119571,https://media.giphy.com/media/xT1XGWbE0XiBDX2T8Q/giphy.gif,"Known cyberbullying content detected by CNN classification model",auto_deleted,false,2026-03-03 09:04:03
+4d3b0573-9e76-4290-a217-ee2b6a3b3f08,image,,63edacff-f1d4-4ebb-9611-cc3771119571,post-image-url,"The image contains profanity (BAD BITCH).",auto_deleted,false,2026-03-03 09:04:35
+ee4a634a-8d60-49b3-b5b5-112595b08200,text,,63edacff-f1d4-4ebb-9611-cc3771119571,you are ugly,"direct personal attack on the person's appearance",auto_deleted,false,2026-03-08 14:30:46
