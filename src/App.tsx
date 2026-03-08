@@ -17,6 +17,7 @@ import Explore from "./pages/Explore";
 import Notifications from "./pages/Notifications";
 import YouTube from "./pages/YouTube";
 import YouTubeAuth from "./pages/YouTubeAuth";
+import YouTubeProfile from "./pages/YouTubeProfile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ const App = () => (
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/youtube" element={<YouTube />} />
             <Route path="/youtube-auth" element={<YouTubeAuth />} />
+            <Route path="/youtube-profile" element={<YouTubeProfile />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

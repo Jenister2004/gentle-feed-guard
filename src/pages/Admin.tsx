@@ -70,7 +70,12 @@ export default function Admin() {
 
   const loadYtVideos = async () => {
     const { data } = await supabase.from('youtube_videos').select('*').order('created_at', { ascending: false });
-    setYtVideos(data || []);
+    if (data) {
+      const uids = [...new Set(data.map(v => v.user_id))];
+      const { data: profs } = await supabase.from('profiles').select('user_id, username').in('user_id', uids);
+      const map = Object.fromEntries((profs || []).map(p => [p.user_id, p.username]));
+      setYtVideos(data.map(v => ({ ...v, username: map[v.user_id] || 'unknown' })));
+    }
   };
 
   const loadYtComments = async () => {
@@ -466,6 +471,7 @@ export default function Admin() {
                   <thead>
                     <tr className="border-b border-green-500/20 text-green-500/50">
                       <th className="text-left px-3 py-2">TITLE</th>
+                      <th className="text-left px-3 py-2">AGENT</th>
                       <th className="text-left px-3 py-2">TYPE</th>
                       <th className="text-left px-3 py-2">STATUS</th>
                       <th className="text-left px-3 py-2">TIMESTAMP</th>
@@ -476,6 +482,7 @@ export default function Admin() {
                     {ytVideos.map(v => (
                       <tr key={v.id} className="border-b border-green-500/10 hover:bg-green-500/5">
                         <td className="px-3 py-2 max-w-[300px] truncate text-green-500/70">{v.title || 'Untitled'}</td>
+                        <td className="px-3 py-2 text-green-400">{v.username || '—'}</td>
                         <td className="px-3 py-2"><span className="text-red-400">[{v.video_type}]</span></td>
                         <td className="px-3 py-2">
                           {v.is_flagged ? <span className="text-yellow-500">[FLAGGED]</span> : <span className="text-green-500">[ACTIVE]</span>}

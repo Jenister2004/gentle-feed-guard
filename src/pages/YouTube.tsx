@@ -13,7 +13,7 @@ import { formatDistanceToNow } from 'date-fns';
 import {
   ThumbsUp, MessageSquare, Share2, Upload, Link as LinkIcon, Play,
   Loader2, ArrowLeft, Trash2, Send, Search, Video, Home, Compass,
-  Bell, User, Menu, Plus
+  Bell, User, Menu, Plus, Shield
 } from 'lucide-react';
 
 interface YTVideo {
@@ -60,7 +60,7 @@ function extractYouTubeId(url: string): string | null {
 }
 
 export default function YouTube() {
-  const { user, profile, loading: authLoading } = useAuth();
+  const { user, profile, isAdmin, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [videos, setVideos] = useState<YTVideo[]>([]);
   const [loading, setLoading] = useState(true);
@@ -181,10 +181,15 @@ export default function YouTube() {
                 <UploadForm userId={user.id} onDone={() => { setUploadOpen(false); loadVideos(); }} />
               </DialogContent>
             </Dialog>
+            {isAdmin && (
+              <button onClick={() => navigate('/admin')} className="p-2 hover:bg-secondary rounded-full" title="Admin Dashboard">
+                <Shield className="h-5 w-5" />
+              </button>
+            )}
             <button className="p-2 hover:bg-secondary rounded-full">
               <Bell className="h-5 w-5" />
             </button>
-            <Avatar className="h-8 w-8 cursor-pointer" onClick={() => navigate('/profile')}>
+            <Avatar className="h-8 w-8 cursor-pointer" onClick={() => navigate('/youtube-profile')}>
               <AvatarImage src={profile?.avatar_url || undefined} />
               <AvatarFallback className="text-xs bg-muted">{profile?.username?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
             </Avatar>
