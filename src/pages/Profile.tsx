@@ -51,6 +51,42 @@ export default function Profile() {
   const [newFullName, setNewFullName] = useState('');
   const [savingName, setSavingName] = useState(false);
 
+  // Privacy & follow requests
+  const [isPrivate, setIsPrivate] = useState(false);
+  const [togglingPrivacy, setTogglingPrivacy] = useState(false);
+  const [followRequests, setFollowRequests] = useState<FollowRequest[]>([]);
+  const [requestsOpen, setRequestsOpen] = useState(false);
+  const [processingRequest, setProcessingRequest] = useState<string | null>(null);
+
+  const loadFollowRequests = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('follow_requests')
+      .select('*')
+      .eq('target_id', user.id)
+      .eq('status', 'pending')
+      .order('created_at', { ascending: false });
+
+    if (data && data.length > 0) {
+      const requesterIds = data.map(r => r.requester_id);
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, username, avatar_url, full_name')
+        .in('user_id', requesterIds);
+
+      const profileMap = Object.fromEntries(
+        (profiles || []).map(p => [p.user_id, { username: p.username, avatar_url: p.avatar_url, full_name: p.full_name }])
+      );
+
+      setFollowRequests(data.map(r => ({
+        ...r,
+        profile: profileMap[r.requester_id],
+      })));
+    } else {
+      setFollowRequests([]);
+    }
+  };
+
   useEffect(() => {
     if (!user) return;
     setAvatarUrl(profile?.avatar_url || null);
@@ -62,6 +98,12 @@ export default function Profile() {
       .then(({ count }) => setFollowerCount(count || 0));
     supabase.from('follows').select('id', { count: 'exact', head: true }).eq('follower_id', user.id)
       .then(({ count }) => setFollowingCount(count || 0));
+
+    // Load privacy setting
+    supabase.from('profiles').select('is_private').eq('user_id', user.id).maybeSingle()
+      .then(({ data }) => setIsPrivate(data?.is_private ?? false));
+
+    loadFollowRequests();
   }, [user, profile]);
 
   const handleEditUsername = () => {
