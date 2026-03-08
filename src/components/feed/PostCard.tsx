@@ -232,7 +232,14 @@ export default function PostCard({ post, posterUsername, posterAvatarUrl, onDele
           <span className="font-semibold text-sm">{posterUsername}</span>
           {post.is_flagged && <AlertTriangle className="h-4 w-4 text-warning" />}
         </div>
-        <FollowButton targetUserId={post.user_id} compact />
+        <div className="flex items-center gap-2">
+          <FollowButton targetUserId={post.user_id} compact />
+          {canDelete && (
+            <button onClick={deletePost} className="text-destructive/60 hover:text-destructive transition-colors" title="Delete post">
+              <Trash2 className="h-4 w-4" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Image */}
