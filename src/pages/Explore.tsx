@@ -2,9 +2,8 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
-import { Search, Loader2 } from 'lucide-react';
+import { Search, Loader2, ArrowLeft } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import AppHeader from '@/components/layout/AppHeader';
 import BottomNav from '@/components/layout/BottomNav';
 
 interface ExplorePost {
