@@ -477,28 +477,26 @@ function VideoPlayer({ video, user, onBack }: { video: YTVideo; user: any; onBac
         <div className="mt-6">
           <h2 className="font-bold text-base mb-4">{comments.length} Comments</h2>
 
-          {!isSample && (
-            <form onSubmit={submitComment} className="flex items-start gap-3 mb-6">
-              <Avatar className="h-8 w-8 mt-1">
-                <AvatarFallback className="text-xs bg-muted">U</AvatarFallback>
-              </Avatar>
-              <div className="flex-1">
-                <Input
-                  value={newComment}
-                  onChange={e => setNewComment(e.target.value)}
-                  placeholder="Add a comment..."
-                  className="bg-transparent border-0 border-b border-border rounded-none px-0 focus-visible:ring-0 focus-visible:border-foreground text-sm"
-                  disabled={submitting}
-                />
-                <div className="flex justify-end gap-2 mt-2">
-                  <Button type="button" variant="ghost" size="sm" onClick={() => setNewComment('')} className="rounded-full">Cancel</Button>
-                  <Button type="submit" size="sm" disabled={submitting || !newComment.trim()} className="rounded-full bg-primary text-primary-foreground">
-                    {submitting ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : null} Comment
-                  </Button>
-                </div>
+          <form onSubmit={submitComment} className="flex items-start gap-3 mb-6">
+            <Avatar className="h-8 w-8 mt-1">
+              <AvatarFallback className="text-xs bg-muted">U</AvatarFallback>
+            </Avatar>
+            <div className="flex-1">
+              <Input
+                value={newComment}
+                onChange={e => setNewComment(e.target.value)}
+                placeholder="Add a comment..."
+                className="bg-transparent border-0 border-b border-border rounded-none px-0 focus-visible:ring-0 focus-visible:border-foreground text-sm"
+                disabled={submitting}
+              />
+              <div className="flex justify-end gap-2 mt-2">
+                <Button type="button" variant="ghost" size="sm" onClick={() => setNewComment('')} className="rounded-full">Cancel</Button>
+                <Button type="submit" size="sm" disabled={submitting || !newComment.trim()} className="rounded-full bg-primary text-primary-foreground">
+                  {submitting ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : null} Comment
+                </Button>
               </div>
-            </form>
-          )}
+            </div>
+          </form>
 
           <div className="space-y-4">
             {comments.map(c => (
