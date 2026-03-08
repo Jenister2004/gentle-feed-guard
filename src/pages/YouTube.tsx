@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -70,9 +70,8 @@ export default function YouTube() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    if (!user && !authLoading) { navigate('/auth'); return; }
     if (user) loadVideos();
-  }, [user, authLoading]);
+  }, [user]);
 
   const loadVideos = async () => {
     setLoading(true);
@@ -127,7 +126,12 @@ export default function YouTube() {
     (v.username || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  if (!user) return null;
+  if (authLoading) return (
+    <div className="flex min-h-screen items-center justify-center bg-background">
+      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+    </div>
+  );
+  if (!user) return <Navigate to="/auth" replace />;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
