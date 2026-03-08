@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Heart, MessageCircle, Trash2, AlertTriangle, Flag } from 'lucide-react';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Heart, MessageCircle, Trash2, Flag, Send, Bookmark, BookmarkCheck, MoreHorizontal } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
@@ -10,7 +10,12 @@ import { formatDistanceToNow } from 'date-fns';
 import GifPicker from '@/components/feed/GifPicker';
 import EmojiPicker from '@/components/feed/EmojiPicker';
 import FollowButton from '@/components/profile/FollowButton';
-import { AvatarImage } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface Post {
   id: string;
@@ -48,16 +53,28 @@ export default function PostCard({ post, posterUsername, posterAvatarUrl, onDele
   const [submitting, setSubmitting] = useState(false);
   const [animateHeart, setAnimateHeart] = useState(false);
   const [deleted, setDeleted] = useState(false);
+  const [bookmarked, setBookmarked] = useState(false);
+  const [doubleTapHeart, setDoubleTapHeart] = useState(false);
 
   const canDelete = user && (user.id === post.user_id || isAdmin);
+
+  // Double-tap to like
+  let lastTap = 0;
+  const handleDoubleTap = () => {
+    const now = Date.now();
+    if (now - lastTap < 300) {
+      if (!liked) toggleLike();
+      setDoubleTapHeart(true);
+      setTimeout(() => setDoubleTapHeart(false), 800);
+    }
+    lastTap = now;
+  };
 
   const deletePost = async () => {
     if (!confirm('Are you sure you want to delete this post?')) return;
     try {
-      // Delete image from storage
       const path = post.image_url.split('/post-images/')[1];
       if (path) await supabase.storage.from('post-images').remove([path]);
-      // Delete post row
       const { error } = await supabase.from('posts').delete().eq('id', post.id);
       if (error) throw error;
       setDeleted(true);
@@ -113,12 +130,8 @@ export default function PostCard({ post, posterUsername, posterAvatarUrl, onDele
 
   const deleteComment = async (commentId: string) => {
     const { error } = await supabase.from('comments').update({ is_deleted: true }).eq('id', commentId);
-    if (!error) {
-      toast.success('Comment deleted');
-      loadComments();
-    } else {
-      toast.error('Failed to delete comment');
-    }
+    if (!error) { toast.success('Comment deleted'); loadComments(); }
+    else toast.error('Failed to delete comment');
   };
 
   const submitComment = async (e: React.FormEvent) => {
@@ -126,96 +139,46 @@ export default function PostCard({ post, posterUsername, posterAvatarUrl, onDele
     if (!newComment.trim() || !user || submitting) return;
     setSubmitting(true);
     try {
-      // Check if user is banned
       const { data: userProfile } = await supabase.from('profiles').select('is_banned, is_suspended').eq('user_id', user.id).maybeSingle();
-      if (userProfile?.is_banned) {
-        toast.error('🚫 Your account has been banned due to violating the community guidelines. You cannot post comments.', { duration: 6000 });
-        setSubmitting(false);
-        return;
-      }
-      if (userProfile?.is_suspended) {
-        toast.error('⚠️ Your account is suspended due to violating the community guidelines. You cannot post comments.', { duration: 6000 });
-        setSubmitting(false);
-        return;
-      }
+      if (userProfile?.is_banned) { toast.error('🚫 Your account has been banned.', { duration: 6000 }); setSubmitting(false); return; }
+      if (userProfile?.is_suspended) { toast.error('⚠️ Your account is suspended.', { duration: 6000 }); setSubmitting(false); return; }
 
       const resp = await supabase.functions.invoke('moderate-content', {
         body: { type: 'text', content: newComment, userId: user.id, postId: post.id },
       });
-      
-      if (resp.data?.flagged) {
-        toast.error('⚠️ Your comment was detected as cyberbullying and has been removed.', { duration: 5000 });
-        setNewComment('');
-        setSubmitting(false);
-        return;
-      }
+      if (resp.data?.flagged) { toast.error('⚠️ Your comment was detected as cyberbullying and has been removed.', { duration: 5000 }); setNewComment(''); setSubmitting(false); return; }
 
-      const { error } = await supabase.from('comments').insert({
-        post_id: post.id,
-        user_id: user.id,
-        content: newComment,
-      });
+      const { error } = await supabase.from('comments').insert({ post_id: post.id, user_id: user.id, content: newComment });
       if (error) throw error;
       setNewComment('');
       loadComments();
-    } catch (err: any) {
-      toast.error('Failed to post comment');
-    } finally {
-      setSubmitting(false);
-    }
+    } catch { toast.error('Failed to post comment'); }
+    finally { setSubmitting(false); }
   };
 
   const submitGif = async (gifUrl: string, isFlaggedInDataset: boolean) => {
     if (!user || submitting) return;
     setSubmitting(true);
     try {
-      // Check if user is banned
       const { data: userProfile } = await supabase.from('profiles').select('is_banned, is_suspended').eq('user_id', user.id).maybeSingle();
-      if (userProfile?.is_banned) {
-        toast.error('🚫 Your account has been banned due to violating the community guidelines. You cannot post content.', { duration: 6000 });
-        setSubmitting(false);
-        return;
-      }
-      if (userProfile?.is_suspended) {
-        toast.error('⚠️ Your account is suspended due to violating the community guidelines. You cannot post content.', { duration: 6000 });
-        setSubmitting(false);
-        return;
-      }
-      // If the GIF is from the known cyberbullying dataset, auto-block it immediately
+      if (userProfile?.is_banned) { toast.error('🚫 Your account has been banned.', { duration: 6000 }); setSubmitting(false); return; }
+      if (userProfile?.is_suspended) { toast.error('⚠️ Your account is suspended.', { duration: 6000 }); setSubmitting(false); return; }
+
       if (isFlaggedInDataset) {
-        // Log to flagged_content via moderation edge function
-        await supabase.functions.invoke('moderate-content', {
-          body: { type: 'gif', content: gifUrl, userId: user.id, postId: post.id, forceFlag: true },
-        });
-        toast.error('⚠️ This GIF was detected as cyberbullying by CNN analysis and has been automatically deleted.', { duration: 5000 });
+        await supabase.functions.invoke('moderate-content', { body: { type: 'gif', content: gifUrl, userId: user.id, postId: post.id, forceFlag: true } });
+        toast.error('⚠️ This GIF was detected as cyberbullying.', { duration: 5000 });
         setSubmitting(false);
         return;
       }
 
-      // Moderate unknown GIFs using CNN simulation
-      const resp = await supabase.functions.invoke('moderate-content', {
-        body: { type: 'image', content: gifUrl, userId: user.id, postId: post.id },
-      });
+      const resp = await supabase.functions.invoke('moderate-content', { body: { type: 'image', content: gifUrl, userId: user.id, postId: post.id } });
+      if (resp.data?.flagged) { toast.error('⚠️ This GIF was detected as harmful.', { duration: 5000 }); setSubmitting(false); return; }
 
-      if (resp.data?.flagged) {
-        toast.error('⚠️ This GIF was detected as harmful by CNN analysis and has been automatically deleted.', { duration: 5000 });
-        setSubmitting(false);
-        return;
-      }
-
-      const { error } = await supabase.from('comments').insert({
-        post_id: post.id,
-        user_id: user.id,
-        content: '[GIF]',
-        gif_url: gifUrl,
-      });
+      const { error } = await supabase.from('comments').insert({ post_id: post.id, user_id: user.id, content: '[GIF]', gif_url: gifUrl });
       if (error) throw error;
       loadComments();
-    } catch (err: any) {
-      toast.error('Failed to post GIF');
-    } finally {
-      setSubmitting(false);
-    }
+    } catch { toast.error('Failed to post GIF'); }
+    finally { setSubmitting(false); }
   };
 
   const reportPost = async () => {
@@ -223,12 +186,8 @@ export default function PostCard({ post, posterUsername, posterAvatarUrl, onDele
     const reason = prompt('Why are you reporting this post?');
     if (!reason?.trim()) return;
     const { error } = await supabase.from('flagged_content').insert({
-      content_type: 'post',
-      user_id: user.id,
-      content_id: post.id,
-      original_content: post.image_url,
-      reason: `User report: ${reason.trim()}`,
-      action_taken: 'pending_review',
+      content_type: 'post', user_id: user.id, content_id: post.id,
+      original_content: post.image_url, reason: `User report: ${reason.trim()}`, action_taken: 'pending_review',
     });
     if (error) toast.error('Failed to report');
     else toast.success('Post reported. Our team will review it.');
@@ -239,79 +198,115 @@ export default function PostCard({ post, posterUsername, posterAvatarUrl, onDele
     const reason = prompt('Why are you reporting this comment?');
     if (!reason?.trim()) return;
     const { error } = await supabase.from('flagged_content').insert({
-      content_type: 'comment',
-      user_id: user.id,
-      content_id: commentId,
-      original_content: content,
-      reason: `User report: ${reason.trim()}`,
-      action_taken: 'pending_review',
+      content_type: 'comment', user_id: user.id, content_id: commentId,
+      original_content: content, reason: `User report: ${reason.trim()}`, action_taken: 'pending_review',
     });
     if (error) toast.error('Failed to report');
-    else toast.success('Comment reported. Our team will review it.');
+    else toast.success('Comment reported.');
+  };
+
+  const sharePost = async () => {
+    const url = `${window.location.origin}/post/${post.id}`;
+    if (navigator.share) {
+      try { await navigator.share({ title: `Post by ${posterUsername}`, text: post.caption || '', url }); }
+      catch { /* user cancelled */ }
+    } else {
+      await navigator.clipboard.writeText(url);
+      toast.success('Link copied to clipboard!');
+    }
   };
 
   return (
-    <div className="bg-card border border-border rounded-lg mb-4 card-animate animate-fade-in">
+    <div className="bg-card border-b border-border">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3">
-        <div className="flex items-center gap-3">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={posterAvatarUrl || undefined} alt={posterUsername} />
-            <AvatarFallback className="instagram-gradient text-primary-foreground text-xs font-semibold">
-              {posterUsername[0]?.toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-          <span className="font-semibold text-sm">{posterUsername}</span>
-          {post.is_flagged && <AlertTriangle className="h-4 w-4 text-warning" />}
+      <div className="flex items-center justify-between px-3 py-2.5">
+        <div className="flex items-center gap-2.5">
+          <div className="p-[2px] rounded-full instagram-gradient">
+            <Avatar className="h-8 w-8 border-2 border-card">
+              <AvatarImage src={posterAvatarUrl || undefined} alt={posterUsername} />
+              <AvatarFallback className="text-xs font-semibold bg-muted">
+                {posterUsername[0]?.toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-sm">{posterUsername}</span>
+            {user && user.id !== post.user_id && <FollowButton targetUserId={post.user_id} compact />}
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <FollowButton targetUserId={post.user_id} compact />
-          {canDelete && (
-            <button onClick={deletePost} className="text-destructive/60 hover:text-destructive transition-colors" title="Delete post">
-              <Trash2 className="h-4 w-4" />
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="hover:opacity-60 transition-opacity p-1">
+              <MoreHorizontal className="h-5 w-5" />
             </button>
-          )}
-        </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="min-w-[160px]">
+            {canDelete && (
+              <DropdownMenuItem onClick={deletePost} className="text-destructive focus:text-destructive">
+                <Trash2 className="h-4 w-4 mr-2" /> Delete
+              </DropdownMenuItem>
+            )}
+            {user && user.id !== post.user_id && (
+              <DropdownMenuItem onClick={reportPost}>
+                <Flag className="h-4 w-4 mr-2" /> Report
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
-      {/* Image */}
-      <div className="aspect-square bg-muted">
+      {/* Image — double tap to like */}
+      <div className="relative aspect-square bg-muted" onClick={handleDoubleTap}>
         <img src={post.image_url} alt={post.caption || 'Post'} className="w-full h-full object-cover" loading="lazy" />
+        {/* Double-tap heart animation */}
+        {doubleTapHeart && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <Heart className="h-24 w-24 text-white fill-white drop-shadow-lg animate-heart-burst" />
+          </div>
+        )}
       </div>
 
-      {/* Actions */}
-      <div className="px-4 pt-3 pb-1">
+      {/* Action buttons */}
+      <div className="px-3 pt-2.5 pb-1">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <button onClick={toggleLike} className="icon-click hover:opacity-60 transition-opacity">
-              <Heart className={`h-6 w-6 ${liked ? 'fill-destructive text-destructive' : ''} ${animateHeart ? 'animate-heart-pop' : ''}`} />
+            <button onClick={toggleLike} className="hover:opacity-60 transition-opacity">
+              <Heart className={`h-6 w-6 transition-all ${liked ? 'fill-destructive text-destructive' : ''} ${animateHeart ? 'scale-125' : 'scale-100'}`} />
             </button>
-            <button onClick={() => setShowComments(!showComments)} className="icon-click hover:opacity-60 transition-opacity">
+            <button onClick={() => setShowComments(!showComments)} className="hover:opacity-60 transition-opacity">
               <MessageCircle className="h-6 w-6" />
             </button>
-          </div>
-          {user && user.id !== post.user_id && (
-            <button onClick={reportPost} className="text-muted-foreground hover:text-destructive transition-colors" title="Report post">
-              <Flag className="h-5 w-5" />
+            <button onClick={sharePost} className="hover:opacity-60 transition-opacity">
+              <Send className="h-6 w-6 -rotate-12" />
             </button>
-          )}
+          </div>
+          <button onClick={() => setBookmarked(!bookmarked)} className="hover:opacity-60 transition-opacity">
+            {bookmarked ? <BookmarkCheck className="h-6 w-6 fill-foreground" /> : <Bookmark className="h-6 w-6" />}
+          </button>
         </div>
-        <p className="font-semibold text-sm mt-2">{likeCount} likes</p>
+
+        {/* Likes */}
+        <p className="font-semibold text-sm mt-2">{likeCount.toLocaleString()} likes</p>
+
+        {/* Caption */}
         {post.caption && (
           <p className="text-sm mt-1">
-            <span className="font-semibold">{posterUsername}</span>{' '}
-            {post.caption}
+            <span className="font-semibold">{posterUsername}</span>{' '}{post.caption}
           </p>
         )}
-        <button onClick={() => setShowComments(!showComments)} className="text-muted-foreground text-sm mt-1 hover:underline">
-          {showComments ? 'Hide comments' : 'View comments'}
+
+        {/* Comments preview */}
+        <button onClick={() => setShowComments(!showComments)} className="text-muted-foreground text-sm mt-1 block">
+          {showComments ? 'Hide comments' : 'View all comments'}
         </button>
-        <p className="text-xs text-muted-foreground mt-1">{formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}</p>
+        <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-wide">
+          {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
+        </p>
       </div>
 
-      {/* Comments */}
+      {/* Comments section */}
       {showComments && (
-        <div className="px-4 pb-3 border-t border-border mt-2 pt-2">
+        <div className="px-3 pb-3 border-t border-border mt-2 pt-2">
           <div className="max-h-48 overflow-y-auto space-y-2 mb-3">
             {comments.map(c => (
               <div key={c.id} className="text-sm group flex items-start gap-1">
@@ -319,26 +314,16 @@ export default function PostCard({ post, posterUsername, posterAvatarUrl, onDele
                   <span className="font-semibold">{c.profile?.username}</span>{' '}
                   {c.gif_url ? (
                     <img src={c.gif_url} alt="GIF" className="mt-1 rounded max-w-[200px] max-h-[150px]" loading="lazy" />
-                  ) : (
-                    c.content
-                  )}
+                  ) : c.content}
                   <span className="text-xs text-muted-foreground ml-2">{formatDistanceToNow(new Date(c.created_at), { addSuffix: true })}</span>
                 </div>
                 {user && user.id === c.user_id && (
-                  <button
-                    onClick={() => deleteComment(c.id)}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive p-1"
-                    title="Delete comment"
-                  >
+                  <button onClick={() => deleteComment(c.id)} className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive p-1" title="Delete">
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
                 )}
                 {user && user.id !== c.user_id && (
-                  <button
-                    onClick={() => reportComment(c.id, c.gif_url || c.content)}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive p-1"
-                    title="Report comment"
-                  >
+                  <button onClick={() => reportComment(c.id, c.gif_url || c.content)} className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive p-1" title="Report">
                     <Flag className="h-3.5 w-3.5" />
                   </button>
                 )}
@@ -349,19 +334,27 @@ export default function PostCard({ post, posterUsername, posterAvatarUrl, onDele
           <form onSubmit={submitComment} className="flex gap-2 items-center">
             <GifPicker onSelect={submitGif} disabled={submitting} />
             <EmojiPicker onSelect={(emoji) => setNewComment(prev => prev + emoji)} disabled={submitting} />
-            <Input
-              value={newComment}
-              onChange={e => setNewComment(e.target.value)}
-              placeholder="Add a comment..."
-              className="text-sm bg-secondary border-0 flex-1"
-              disabled={submitting}
-            />
+            <Input value={newComment} onChange={e => setNewComment(e.target.value)} placeholder="Add a comment..." className="text-sm bg-secondary border-0 flex-1" disabled={submitting} />
             <Button type="submit" variant="ghost" size="sm" className="text-primary font-semibold" disabled={submitting || !newComment.trim()}>
               Post
             </Button>
           </form>
         </div>
       )}
+
+      <style>{`
+        @keyframes heart-burst-post {
+          0% { opacity: 0; transform: scale(0); }
+          15% { opacity: 1; transform: scale(1.2); }
+          30% { transform: scale(0.95); }
+          45% { transform: scale(1.05); }
+          80% { opacity: 1; transform: scale(1); }
+          100% { opacity: 0; transform: scale(1); }
+        }
+        .animate-heart-burst {
+          animation: heart-burst-post 0.8s ease-out forwards;
+        }
+      `}</style>
     </div>
   );
 }

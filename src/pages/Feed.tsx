@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import PostCard from '@/components/feed/PostCard';
-import CreatePost from '@/components/feed/CreatePost';
 import AppHeader from '@/components/layout/AppHeader';
+import BottomNav from '@/components/layout/BottomNav';
 import StoryBar from '@/components/stories/StoryBar';
 import { Loader2, Ban } from 'lucide-react';
 
@@ -33,14 +33,11 @@ export default function Feed() {
 
   useEffect(() => {
     loadPosts();
-
-    // Realtime subscription for new posts
     const channel = supabase
       .channel('feed-posts')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, () => loadPosts())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'comments' }, () => {})
       .subscribe();
-
     return () => { supabase.removeChannel(channel); };
   }, []);
 
@@ -55,16 +52,16 @@ export default function Feed() {
       <div className="flex min-h-screen items-center justify-center flex-col gap-4 p-4">
         <Ban className="h-16 w-16 text-destructive" />
         <h1 className="text-2xl font-bold text-destructive">Account Banned</h1>
-        <p className="text-muted-foreground text-center max-w-md">Your account has been banned for violating community guidelines. You can no longer access this platform.</p>
+        <p className="text-muted-foreground text-center max-w-md">Your account has been banned for violating community guidelines.</p>
         <button onClick={signOut} className="text-sm text-primary hover:underline mt-2">Sign Out</button>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-secondary/30 animate-page-enter">
+    <div className="min-h-screen bg-background">
       <AppHeader />
-      <main className="max-w-lg mx-auto px-4 pt-16 pb-8">
+      <main className="max-w-lg mx-auto pt-12 pb-16">
         <StoryBar />
         {posts.length === 0 ? (
           <div className="text-center py-20">
@@ -77,6 +74,7 @@ export default function Feed() {
           ))
         )}
       </main>
+      <BottomNav />
     </div>
   );
 }
