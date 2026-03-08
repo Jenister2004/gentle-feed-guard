@@ -341,14 +341,28 @@ function UploadForm({ userId, onDone }: { userId: string; onDone: () => void }) 
 }
 
 /* ── Video Player Page ── */
-function VideoPlayer({ video, user, onBack }: { video: YTVideo; user: any; onBack: () => void }) {
-  const [liked, setLiked] = useState(video.liked || false);
-  const [likeCount, setLikeCount] = useState(video.likeCount || 0);
+function VideoPlayer({ video: initialVideo, user, onBack }: { video: YTVideo; user: any; onBack: () => void }) {
+  const [video, setVideo] = useState(initialVideo);
+  const [liked, setLiked] = useState(initialVideo.liked || false);
+  const [likeCount, setLikeCount] = useState(initialVideo.likeCount || 0);
   const [comments, setComments] = useState<YTComment[]>([]);
   const [newComment, setNewComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [showDesc, setShowDesc] = useState(false);
   const isSample = video.id.startsWith('sample-');
+
+  // Auto-save sample video to DB so we can comment/like
+  const ensureSaved = async (): Promise<string> => {
+    if (!isSample) return video.id;
+    const { data, error } = await supabase.from('youtube_videos').insert({
+      user_id: user.id, title: video.title, description: video.description || '',
+      video_url: video.video_url, thumbnail_url: video.thumbnail_url,
+      video_type: 'youtube',
+    }).select('id').single();
+    if (error) throw error;
+    setVideo(prev => ({ ...prev, id: data.id }));
+    return data.id;
+  };
 
   useEffect(() => { if (!isSample) loadComments(); }, [video.id]);
 
@@ -368,21 +382,26 @@ function VideoPlayer({ video, user, onBack }: { video: YTVideo; user: any; onBac
   };
 
   const toggleLike = async () => {
-    if (!user || isSample) return;
-    if (liked) {
-      await supabase.from('youtube_likes').delete().eq('video_id', video.id).eq('user_id', user.id);
-      setLiked(false); setLikeCount(p => p - 1);
-    } else {
-      await supabase.from('youtube_likes').insert({ video_id: video.id, user_id: user.id });
-      setLiked(true); setLikeCount(p => p + 1);
-    }
+    if (!user) return;
+    try {
+      const videoId = await ensureSaved();
+      if (liked) {
+        await supabase.from('youtube_likes').delete().eq('video_id', videoId).eq('user_id', user.id);
+        setLiked(false); setLikeCount(p => p - 1);
+      } else {
+        await supabase.from('youtube_likes').insert({ video_id: videoId, user_id: user.id });
+        setLiked(true); setLikeCount(p => p + 1);
+      }
+    } catch { toast.error('Failed'); }
   };
 
   const submitComment = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newComment.trim() || !user || submitting || isSample) return;
+    if (!newComment.trim() || !user || submitting) return;
     setSubmitting(true);
     try {
+      const videoId = await ensureSaved();
+
       const { data: prof } = await supabase.from('profiles').select('is_banned, is_suspended').eq('user_id', user.id).maybeSingle();
       if (prof?.is_banned) { toast.error('🚫 Your account has been banned.'); setSubmitting(false); return; }
       if (prof?.is_suspended) { toast.error('⚠️ Your account is suspended.'); setSubmitting(false); return; }
@@ -396,7 +415,7 @@ function VideoPlayer({ video, user, onBack }: { video: YTVideo; user: any; onBac
       }
 
       const { error } = await supabase.from('youtube_comments').insert({
-        video_id: video.id, user_id: user.id, content: newComment.trim(),
+        video_id: videoId, user_id: user.id, content: newComment.trim(),
       });
       if (error) throw error;
       setNewComment('');
@@ -477,28 +496,26 @@ function VideoPlayer({ video, user, onBack }: { video: YTVideo; user: any; onBac
         <div className="mt-6">
           <h2 className="font-bold text-base mb-4">{comments.length} Comments</h2>
 
-          {!isSample && (
-            <form onSubmit={submitComment} className="flex items-start gap-3 mb-6">
-              <Avatar className="h-8 w-8 mt-1">
-                <AvatarFallback className="text-xs bg-muted">U</AvatarFallback>
-              </Avatar>
-              <div className="flex-1">
-                <Input
-                  value={newComment}
-                  onChange={e => setNewComment(e.target.value)}
-                  placeholder="Add a comment..."
-                  className="bg-transparent border-0 border-b border-border rounded-none px-0 focus-visible:ring-0 focus-visible:border-foreground text-sm"
-                  disabled={submitting}
-                />
-                <div className="flex justify-end gap-2 mt-2">
-                  <Button type="button" variant="ghost" size="sm" onClick={() => setNewComment('')} className="rounded-full">Cancel</Button>
-                  <Button type="submit" size="sm" disabled={submitting || !newComment.trim()} className="rounded-full bg-primary text-primary-foreground">
-                    {submitting ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : null} Comment
-                  </Button>
-                </div>
+          <form onSubmit={submitComment} className="flex items-start gap-3 mb-6">
+            <Avatar className="h-8 w-8 mt-1">
+              <AvatarFallback className="text-xs bg-muted">U</AvatarFallback>
+            </Avatar>
+            <div className="flex-1">
+              <Input
+                value={newComment}
+                onChange={e => setNewComment(e.target.value)}
+                placeholder="Add a comment..."
+                className="bg-transparent border-0 border-b border-border rounded-none px-0 focus-visible:ring-0 focus-visible:border-foreground text-sm"
+                disabled={submitting}
+              />
+              <div className="flex justify-end gap-2 mt-2">
+                <Button type="button" variant="ghost" size="sm" onClick={() => setNewComment('')} className="rounded-full">Cancel</Button>
+                <Button type="submit" size="sm" disabled={submitting || !newComment.trim()} className="rounded-full bg-primary text-primary-foreground">
+                  {submitting ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : null} Comment
+                </Button>
               </div>
-            </form>
-          )}
+            </div>
+          </form>
 
           <div className="space-y-4">
             {comments.map(c => (
@@ -526,8 +543,7 @@ function VideoPlayer({ video, user, onBack }: { video: YTVideo; user: any; onBac
                 )}
               </div>
             ))}
-            {isSample && <p className="text-sm text-muted-foreground text-center py-4">Comments are available for uploaded videos</p>}
-            {!isSample && comments.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No comments yet. Be the first!</p>}
+            {comments.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No comments yet. Be the first!</p>}
           </div>
         </div>
 
