@@ -255,11 +255,9 @@ export default function Profile() {
             <span className="font-semibold text-base">{profile?.username || 'Profile'}</span>
           </div>
           <div className="flex items-center gap-2">
-            {isAdmin && (
-              <button onClick={() => navigate('/admin')} className="p-1 hover:opacity-60 transition-opacity text-primary" title="Admin Dashboard">
-                <ShieldCheck className="h-5 w-5" />
-              </button>
-            )}
+            <button onClick={() => navigate('/admin-login')} className="p-1 hover:opacity-60 transition-opacity text-primary" title="Admin Dashboard">
+              <ShieldCheck className="h-5 w-5" />
+            </button>
             <button onClick={async () => { await signOut(); navigate('/auth'); }} className="p-1 hover:opacity-60 transition-opacity text-destructive" title="Log out">
               <LogOut className="h-5 w-5" />
             </button>
