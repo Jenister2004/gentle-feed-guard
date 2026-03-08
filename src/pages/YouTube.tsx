@@ -397,9 +397,11 @@ function VideoPlayer({ video: initialVideo, user, onBack }: { video: YTVideo; us
 
   const submitComment = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newComment.trim() || !user || submitting || isSample) return;
+    if (!newComment.trim() || !user || submitting) return;
     setSubmitting(true);
     try {
+      const videoId = await ensureSaved();
+
       const { data: prof } = await supabase.from('profiles').select('is_banned, is_suspended').eq('user_id', user.id).maybeSingle();
       if (prof?.is_banned) { toast.error('🚫 Your account has been banned.'); setSubmitting(false); return; }
       if (prof?.is_suspended) { toast.error('⚠️ Your account is suspended.'); setSubmitting(false); return; }
@@ -413,7 +415,7 @@ function VideoPlayer({ video: initialVideo, user, onBack }: { video: YTVideo; us
       }
 
       const { error } = await supabase.from('youtube_comments').insert({
-        video_id: video.id, user_id: user.id, content: newComment.trim(),
+        video_id: videoId, user_id: user.id, content: newComment.trim(),
       });
       if (error) throw error;
       setNewComment('');
