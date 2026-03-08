@@ -133,6 +133,14 @@ export default function Admin() {
             <Terminal className="h-5 w-5 text-green-500" />
             <span className="text-green-500 font-bold text-sm">ADMIN_CONTROL_PANEL</span>
             <span className="text-green-500/30 text-xs">v2.0</span>
+            {(() => {
+              const pendingReports = flaggedContent.filter(f => !f.reviewed && f.action_taken === 'pending_review').length;
+              return pendingReports > 0 ? (
+                <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">
+                  {pendingReports} PENDING
+                </span>
+              ) : null;
+            })()}
           </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1.5 text-xs">
