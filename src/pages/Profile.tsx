@@ -3,13 +3,23 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import AppHeader from '@/components/layout/AppHeader';
 import AvatarUpload from '@/components/profile/AvatarUpload';
-import { Loader2, Pencil, Check, X, Grid3X3, Bookmark, UserSquare2, Settings, Plus, Heart, MessageCircle } from 'lucide-react';
+import { Loader2, Pencil, Check, X, Grid3X3, Bookmark, UserSquare2, Settings, Plus, Heart, MessageCircle, Lock, Globe, UserCheck, UserX, Bell } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 
 type ProfileTab = 'posts' | 'saved' | 'tagged';
+
+interface FollowRequest {
+  id: string;
+  requester_id: string;
+  created_at: string;
+  profile?: { username: string; avatar_url: string | null; full_name: string };
+}
 
 const HIGHLIGHT_ICONS = [
   { label: 'Travel', emoji: '✈️' },
@@ -41,6 +51,42 @@ export default function Profile() {
   const [newFullName, setNewFullName] = useState('');
   const [savingName, setSavingName] = useState(false);
 
+  // Privacy & follow requests
+  const [isPrivate, setIsPrivate] = useState(false);
+  const [togglingPrivacy, setTogglingPrivacy] = useState(false);
+  const [followRequests, setFollowRequests] = useState<FollowRequest[]>([]);
+  const [requestsOpen, setRequestsOpen] = useState(false);
+  const [processingRequest, setProcessingRequest] = useState<string | null>(null);
+
+  const loadFollowRequests = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('follow_requests')
+      .select('*')
+      .eq('target_id', user.id)
+      .eq('status', 'pending')
+      .order('created_at', { ascending: false });
+
+    if (data && data.length > 0) {
+      const requesterIds = data.map(r => r.requester_id);
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, username, avatar_url, full_name')
+        .in('user_id', requesterIds);
+
+      const profileMap = Object.fromEntries(
+        (profiles || []).map(p => [p.user_id, { username: p.username, avatar_url: p.avatar_url, full_name: p.full_name }])
+      );
+
+      setFollowRequests(data.map(r => ({
+        ...r,
+        profile: profileMap[r.requester_id],
+      })));
+    } else {
+      setFollowRequests([]);
+    }
+  };
+
   useEffect(() => {
     if (!user) return;
     setAvatarUrl(profile?.avatar_url || null);
@@ -52,6 +98,12 @@ export default function Profile() {
       .then(({ count }) => setFollowerCount(count || 0));
     supabase.from('follows').select('id', { count: 'exact', head: true }).eq('follower_id', user.id)
       .then(({ count }) => setFollowingCount(count || 0));
+
+    // Load privacy setting
+    supabase.from('profiles').select('is_private').eq('user_id', user.id).maybeSingle()
+      .then(({ data }) => setIsPrivate(data?.is_private ?? false));
+
+    loadFollowRequests();
   }, [user, profile]);
 
   const handleEditUsername = () => {
@@ -135,6 +187,58 @@ export default function Profile() {
     }
   };
 
+  const togglePrivacy = async () => {
+    if (!user) return;
+    setTogglingPrivacy(true);
+    try {
+      const newValue = !isPrivate;
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_private: newValue })
+        .eq('user_id', user.id);
+      if (error) throw error;
+      setIsPrivate(newValue);
+      toast.success(newValue ? 'Account set to Private 🔒' : 'Account set to Public 🌐');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to update privacy');
+    } finally {
+      setTogglingPrivacy(false);
+    }
+  };
+
+  const acceptRequest = async (requestId: string, requesterId: string) => {
+    setProcessingRequest(requestId);
+    try {
+      // Create the follow relationship
+      await supabase.from('follows').insert({
+        follower_id: requesterId,
+        following_id: user!.id,
+      });
+      // Delete the request
+      await supabase.from('follow_requests').delete().eq('id', requestId);
+      setFollowRequests(prev => prev.filter(r => r.id !== requestId));
+      setFollowerCount(prev => prev + 1);
+      toast.success('Follow request accepted');
+    } catch {
+      toast.error('Failed to accept request');
+    } finally {
+      setProcessingRequest(null);
+    }
+  };
+
+  const rejectRequest = async (requestId: string) => {
+    setProcessingRequest(requestId);
+    try {
+      await supabase.from('follow_requests').delete().eq('id', requestId);
+      setFollowRequests(prev => prev.filter(r => r.id !== requestId));
+      toast.success('Follow request declined');
+    } catch {
+      toast.error('Failed to decline request');
+    } finally {
+      setProcessingRequest(null);
+    }
+  };
+
   if (loading) return <div className="flex min-h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
 
   return (
@@ -176,7 +280,10 @@ export default function Profile() {
                   </Button>
                 </div>
               ) : (
-                <h1 className="text-xl font-normal tracking-tight">{profile?.username}</h1>
+                <h1 className="text-xl font-normal tracking-tight flex items-center gap-1.5">
+                  {profile?.username}
+                  {isPrivate && <Lock className="h-4 w-4 text-muted-foreground" />}
+                </h1>
               )}
 
               {!editingUsername && (
@@ -189,9 +296,96 @@ export default function Profile() {
                   >
                     Edit profile
                   </Button>
-                  <Button variant="secondary" size="icon" className="h-8 w-8 rounded-lg">
-                    <Settings className="h-4 w-4" />
-                  </Button>
+
+                  {/* Follow Requests Button */}
+                  <Dialog open={requestsOpen} onOpenChange={setRequestsOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="secondary" size="icon" className="h-8 w-8 rounded-lg relative">
+                        <Bell className="h-4 w-4" />
+                        {followRequests.length > 0 && (
+                          <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-pulse">
+                            {followRequests.length}
+                          </span>
+                        )}
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-sm">
+                      <DialogHeader>
+                        <DialogTitle>Follow Requests</DialogTitle>
+                      </DialogHeader>
+                      <div className="max-h-80 overflow-y-auto space-y-3">
+                        {followRequests.length === 0 ? (
+                          <p className="text-sm text-muted-foreground text-center py-6">No pending requests</p>
+                        ) : (
+                          followRequests.map(req => (
+                            <div key={req.id} className="flex items-center gap-3">
+                              <Avatar className="h-10 w-10">
+                                <AvatarImage src={req.profile?.avatar_url || undefined} />
+                                <AvatarFallback className="instagram-gradient text-primary-foreground text-sm font-semibold">
+                                  {req.profile?.username?.[0]?.toUpperCase() || '?'}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-semibold truncate">{req.profile?.username}</p>
+                                <p className="text-xs text-muted-foreground truncate">{req.profile?.full_name}</p>
+                              </div>
+                              <div className="flex gap-1.5">
+                                <Button
+                                  size="sm"
+                                  className="h-7 px-3 text-xs instagram-gradient text-primary-foreground"
+                                  onClick={() => acceptRequest(req.id, req.requester_id)}
+                                  disabled={processingRequest === req.id}
+                                >
+                                  {processingRequest === req.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <UserCheck className="h-3.5 w-3.5" />}
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-7 px-3 text-xs"
+                                  onClick={() => rejectRequest(req.id)}
+                                  disabled={processingRequest === req.id}
+                                >
+                                  <UserX className="h-3.5 w-3.5" />
+                                </Button>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+
+                  {/* Settings — Privacy Toggle */}
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="secondary" size="icon" className="h-8 w-8 rounded-lg">
+                        <Settings className="h-4 w-4" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-xs">
+                      <DialogHeader>
+                        <DialogTitle>Settings</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4 py-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            {isPrivate ? <Lock className="h-4 w-4 text-muted-foreground" /> : <Globe className="h-4 w-4 text-muted-foreground" />}
+                            <div>
+                              <p className="text-sm font-medium">Private Account</p>
+                              <p className="text-xs text-muted-foreground">
+                                {isPrivate ? 'Only approved followers can see your posts' : 'Anyone can follow you and see your posts'}
+                              </p>
+                            </div>
+                          </div>
+                          <Switch
+                            checked={isPrivate}
+                            onCheckedChange={togglePrivacy}
+                            disabled={togglingPrivacy}
+                          />
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 </>
               )}
             </div>
