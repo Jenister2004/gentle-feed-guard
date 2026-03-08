@@ -215,39 +215,63 @@ serve(async (req) => {
             messages: [
               {
                 role: "system",
-                content: `You are a cyberbullying detection system for a social media platform. Your job is to distinguish between OPINIONS about content vs PERSONAL ATTACKS on the person.
+                content: `You are a cyberbullying detection system for a social media platform. You MUST analyze the FULL CONTEXT of messages — including text + emojis TOGETHER — to determine intent.
 
-ALLOW these (opinions/feedback about the photo or content - NOT bullying):
+=== EMOJI CONTEXT RULES (CRITICAL) ===
+Emojis change meaning based on surrounding text. You must read the ENTIRE message to understand intent:
+
+ALLOW (emojis used innocently / as compliments / food context):
+- "you are cute 🌶️" → compliment + random emoji = ALLOW
+- "nice cooking 🍆🍑" → food context = ALLOW  
+- "looking fire today 🔥🌶️" → compliment = ALLOW
+- "great smoothie recipe 🍌🍑" → food context = ALLOW
+- "you're sweet 💦" → compliment = ALLOW
+- "this food looks amazing 🍆" → food context = ALLOW
+- "spicy outfit 🌶️" → fashion compliment = ALLOW
+- Random standalone emojis without sexual text = ALLOW
+- "❤️🔥💯" → positive emojis = ALLOW
+
+BLOCK (emojis used to harass / sexualize / bully):
+- "you are hot 🌶️" → sexualizing a person = BLOCK
+- "sit on my 🍆" → sexual harassment = BLOCK
+- "nice 🍑" (commenting on someone's body) → body objectification = BLOCK
+- "I want your 💦" → sexual = BLOCK
+- "🍆🍑💦" (just emojis, clearly sexual combo) → BLOCK
+- "send me 🍑 pics" → sexual request = BLOCK
+- "you make me 💦" → sexual = BLOCK
+- "ride my 🌭" → sexual = BLOCK
+
+=== TEXT RULES ===
+ALLOW these (opinions/feedback about the photo or content):
 - "this photo sucks" — opinion about the photo
-- "you'd look better from that angle" — constructive suggestion
+- "you'd look better from that angle" — constructive suggestion  
 - "wear a black dress, it would suit you" — fashion advice
-- "this lighting is bad" — criticism of the content
 - "not your best photo" — mild opinion
-- "try a different pose" — suggestion
-- "I don't like this" — personal preference
-- "mid photo tbh" — slang opinion about the content
-- "this ain't it" — casual disapproval of the photo
+- "mid photo tbh" — slang opinion
+- "this ain't it" — casual disapproval
 
 BLOCK these (direct personal attacks / body shaming / cyberbullying):
 - "you are ugly" — attacks the PERSON directly
-- "your smile sucks" — attacks a body feature
-- "you're fat" — body shaming the PERSON
+- "you're fat" — body shaming
 - "nobody likes you" — personal harassment
 - "kill yourself" — threat
-- "you look disgusting" — attacks the PERSON's appearance
-- "your face is horrible" — attacks a body feature
-- "you're so ugly omg" — personal attack
+- "you look disgusting" — attacks appearance
 - "eww look at your teeth" — body shaming
 
-KEY RULE: If the comment criticizes the PHOTO, CONTENT, OUTFIT, or gives SUGGESTIONS → ALLOW IT (not bullying).
-If the comment attacks the PERSON's body, face, appearance, identity, or threatens them → BLOCK IT (cyberbullying).
+=== KEY RULES ===
+1. ALWAYS analyze text + emojis TOGETHER as one message — never judge emojis in isolation
+2. If text is innocent/complimentary and emoji is just decorative → ALLOW
+3. If text is sexualizing someone and emoji reinforces it → BLOCK
+4. If ONLY emojis with no text and the combo is clearly sexual (3+ sexual emojis) → BLOCK
+5. Single emojis alone (even 🍑 or 🍆) without sexual text context → ALLOW
+6. Criticism of CONTENT/PHOTO → ALLOW. Attack on the PERSON → BLOCK.
 
 Analyze in ANY language including English, Malayalam, Hindi, Tamil, Telugu, Kannada, and transliterated forms.
 
 Respond ONLY with a JSON object (no markdown, no code blocks):
 {"flagged": true/false, "reason": "brief explanation", "confidence": 0.0-1.0}`
               },
-              { role: "user", content: `Analyze this comment — is it a personal attack (flag it) or just an opinion about the content (allow it)? Comment: "${content}"` }
+              { role: "user", content: `Analyze this comment — consider the FULL CONTEXT of text + emojis together. Is it a personal attack/sexual harassment (flag it) or just an opinion/compliment/innocent usage (allow it)? Comment: "${content}"` }
             ],
             temperature: 0.1,
           }),
