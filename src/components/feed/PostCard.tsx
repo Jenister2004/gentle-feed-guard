@@ -104,6 +104,19 @@ export default function PostCard({ post, posterUsername, posterAvatarUrl }: Post
     if (!newComment.trim() || !user || submitting) return;
     setSubmitting(true);
     try {
+      // Check if user is banned
+      const { data: userProfile } = await supabase.from('profiles').select('is_banned, is_suspended').eq('user_id', user.id).maybeSingle();
+      if (userProfile?.is_banned) {
+        toast.error('🚫 Your account has been banned due to violating the community guidelines. You cannot post comments.', { duration: 6000 });
+        setSubmitting(false);
+        return;
+      }
+      if (userProfile?.is_suspended) {
+        toast.error('⚠️ Your account is suspended due to violating the community guidelines. You cannot post comments.', { duration: 6000 });
+        setSubmitting(false);
+        return;
+      }
+
       const resp = await supabase.functions.invoke('moderate-content', {
         body: { type: 'text', content: newComment, userId: user.id, postId: post.id },
       });
