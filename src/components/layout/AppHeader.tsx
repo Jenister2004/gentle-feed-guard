@@ -1,6 +1,6 @@
 import { useAuth } from '@/hooks/useAuth';
 import { Link, useNavigate } from 'react-router-dom';
-import { Camera, Home, LogOut, User, AlertTriangle } from 'lucide-react';
+import { Camera, Home, LogOut, User, AlertTriangle, MessageCircle, Film } from 'lucide-react';
 import CreatePost from '@/components/feed/CreatePost';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import InstagramLogo from '@/components/icons/InstagramLogo';
@@ -17,12 +17,18 @@ export default function AppHeader() {
           <InstagramLogo className="h-6 w-6 text-primary" />
           <span className="text-xl font-bold instagram-gradient-text">Insta Lite</span>
         </Link>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <Link to="/" className="icon-click hover:opacity-60 transition-opacity">
             <Home className="h-6 w-6" />
           </Link>
           <CameraCapture />
           <CreatePost onCreated={() => navigate('/')} />
+          <Link to="/reels" className="icon-click hover:opacity-60 transition-opacity" title="Reels">
+            <Film className="h-6 w-6" />
+          </Link>
+          <Link to="/messages" className="icon-click hover:opacity-60 transition-opacity" title="Messages">
+            <MessageCircle className="h-6 w-6" />
+          </Link>
           <Link to="/admin-login" className="icon-click hover:opacity-60 transition-opacity text-warning" title="Admin Panel">
             <AlertTriangle className="h-6 w-6" />
           </Link>
