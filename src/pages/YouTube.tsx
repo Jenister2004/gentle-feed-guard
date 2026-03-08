@@ -250,13 +250,18 @@ export default function YouTube() {
             </div>
           ) : (
             <>
-              {/* Category chips */}
-              <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
-                {['All', 'Music', 'Gaming', 'Education', 'Entertainment', 'Sports', 'News'].map(cat => (
-                  <button key={cat} className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${cat === 'All' ? 'bg-foreground text-background' : 'bg-secondary text-foreground hover:bg-muted'}`}>
-                    {cat}
-                  </button>
-                ))}
+              {/* Upload CTA + Category chips */}
+              <div className="flex items-center justify-between mb-4 gap-4">
+                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide flex-1">
+                  {['All', 'Music', 'Gaming', 'Education', 'Entertainment', 'Sports', 'News'].map(cat => (
+                    <button key={cat} className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${cat === 'All' ? 'bg-foreground text-background' : 'bg-secondary text-foreground hover:bg-muted'}`}>
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+                <Button onClick={() => setUploadOpen(true)} className="rounded-full gap-1.5 bg-destructive hover:bg-destructive/90 text-destructive-foreground flex-shrink-0">
+                  <Plus className="h-4 w-4" /> Upload Video
+                </Button>
               </div>
 
               {/* Video grid */}
