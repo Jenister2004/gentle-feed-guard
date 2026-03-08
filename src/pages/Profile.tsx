@@ -31,7 +31,7 @@ const HIGHLIGHT_ICONS = [
 ];
 
 export default function Profile() {
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, signOut, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
