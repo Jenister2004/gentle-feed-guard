@@ -574,6 +574,118 @@ export type Database = {
         }
         Relationships: []
       }
+      youtube_comments: {
+        Row: {
+          content: string
+          created_at: string
+          flag_reason: string | null
+          id: string
+          is_deleted: boolean
+          is_flagged: boolean
+          user_id: string
+          video_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          flag_reason?: string | null
+          id?: string
+          is_deleted?: boolean
+          is_flagged?: boolean
+          user_id: string
+          video_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          flag_reason?: string | null
+          id?: string
+          is_deleted?: boolean
+          is_flagged?: boolean
+          user_id?: string
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "youtube_comments_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "youtube_videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      youtube_likes: {
+        Row: {
+          created_at: string
+          id: string
+          user_id: string
+          video_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          user_id: string
+          video_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          user_id?: string
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "youtube_likes_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "youtube_videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      youtube_videos: {
+        Row: {
+          created_at: string
+          description: string | null
+          flag_reason: string | null
+          id: string
+          is_flagged: boolean
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          user_id: string
+          video_type: string
+          video_url: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          flag_reason?: string | null
+          id?: string
+          is_flagged?: boolean
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          user_id: string
+          video_type?: string
+          video_url: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          flag_reason?: string | null
+          id?: string
+          is_flagged?: boolean
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+          video_type?: string
+          video_url?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
