@@ -126,7 +126,12 @@ export default function YouTube() {
     (v.username || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  if (!user) return null;
+  if (authLoading) return (
+    <div className="flex min-h-screen items-center justify-center bg-background">
+      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+    </div>
+  );
+  if (!user) return <Navigate to="/auth" replace />;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
