@@ -341,14 +341,28 @@ function UploadForm({ userId, onDone }: { userId: string; onDone: () => void }) 
 }
 
 /* ── Video Player Page ── */
-function VideoPlayer({ video, user, onBack }: { video: YTVideo; user: any; onBack: () => void }) {
-  const [liked, setLiked] = useState(video.liked || false);
-  const [likeCount, setLikeCount] = useState(video.likeCount || 0);
+function VideoPlayer({ video: initialVideo, user, onBack }: { video: YTVideo; user: any; onBack: () => void }) {
+  const [video, setVideo] = useState(initialVideo);
+  const [liked, setLiked] = useState(initialVideo.liked || false);
+  const [likeCount, setLikeCount] = useState(initialVideo.likeCount || 0);
   const [comments, setComments] = useState<YTComment[]>([]);
   const [newComment, setNewComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [showDesc, setShowDesc] = useState(false);
   const isSample = video.id.startsWith('sample-');
+
+  // Auto-save sample video to DB so we can comment/like
+  const ensureSaved = async (): Promise<string> => {
+    if (!isSample) return video.id;
+    const { data, error } = await supabase.from('youtube_videos').insert({
+      user_id: user.id, title: video.title, description: video.description || '',
+      video_url: video.video_url, thumbnail_url: video.thumbnail_url,
+      video_type: 'youtube',
+    }).select('id').single();
+    if (error) throw error;
+    setVideo(prev => ({ ...prev, id: data.id }));
+    return data.id;
+  };
 
   useEffect(() => { if (!isSample) loadComments(); }, [video.id]);
 
