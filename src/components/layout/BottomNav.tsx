@@ -42,6 +42,14 @@ export default function BottomNav() {
           <Film className="h-6 w-6" strokeWidth={isActive('/reels') ? 2.5 : 1.5} />
         </Link>
 
+        {/* YouTube */}
+        <Link
+          to="/youtube"
+          className={`flex flex-col items-center justify-center p-2 transition-opacity ${isActive('/youtube') ? 'opacity-100' : 'opacity-50 hover:opacity-80'}`}
+        >
+          <Play className="h-6 w-6" strokeWidth={isActive('/youtube') ? 2.5 : 1.5} />
+        </Link>
+
         {/* Profile */}
         <Link
           to="/profile"
