@@ -293,9 +293,96 @@ export default function Profile() {
                   >
                     Edit profile
                   </Button>
-                  <Button variant="secondary" size="icon" className="h-8 w-8 rounded-lg">
-                    <Settings className="h-4 w-4" />
-                  </Button>
+
+                  {/* Follow Requests Button */}
+                  <Dialog open={requestsOpen} onOpenChange={setRequestsOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="secondary" size="icon" className="h-8 w-8 rounded-lg relative">
+                        <Bell className="h-4 w-4" />
+                        {followRequests.length > 0 && (
+                          <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-pulse">
+                            {followRequests.length}
+                          </span>
+                        )}
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-sm">
+                      <DialogHeader>
+                        <DialogTitle>Follow Requests</DialogTitle>
+                      </DialogHeader>
+                      <div className="max-h-80 overflow-y-auto space-y-3">
+                        {followRequests.length === 0 ? (
+                          <p className="text-sm text-muted-foreground text-center py-6">No pending requests</p>
+                        ) : (
+                          followRequests.map(req => (
+                            <div key={req.id} className="flex items-center gap-3">
+                              <Avatar className="h-10 w-10">
+                                <AvatarImage src={req.profile?.avatar_url || undefined} />
+                                <AvatarFallback className="instagram-gradient text-primary-foreground text-sm font-semibold">
+                                  {req.profile?.username?.[0]?.toUpperCase() || '?'}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-semibold truncate">{req.profile?.username}</p>
+                                <p className="text-xs text-muted-foreground truncate">{req.profile?.full_name}</p>
+                              </div>
+                              <div className="flex gap-1.5">
+                                <Button
+                                  size="sm"
+                                  className="h-7 px-3 text-xs instagram-gradient text-primary-foreground"
+                                  onClick={() => acceptRequest(req.id, req.requester_id)}
+                                  disabled={processingRequest === req.id}
+                                >
+                                  {processingRequest === req.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <UserCheck className="h-3.5 w-3.5" />}
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-7 px-3 text-xs"
+                                  onClick={() => rejectRequest(req.id)}
+                                  disabled={processingRequest === req.id}
+                                >
+                                  <UserX className="h-3.5 w-3.5" />
+                                </Button>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+
+                  {/* Settings — Privacy Toggle */}
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="secondary" size="icon" className="h-8 w-8 rounded-lg">
+                        <Settings className="h-4 w-4" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-xs">
+                      <DialogHeader>
+                        <DialogTitle>Settings</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4 py-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            {isPrivate ? <Lock className="h-4 w-4 text-muted-foreground" /> : <Globe className="h-4 w-4 text-muted-foreground" />}
+                            <div>
+                              <p className="text-sm font-medium">Private Account</p>
+                              <p className="text-xs text-muted-foreground">
+                                {isPrivate ? 'Only approved followers can see your posts' : 'Anyone can follow you and see your posts'}
+                              </p>
+                            </div>
+                          </div>
+                          <Switch
+                            checked={isPrivate}
+                            onCheckedChange={togglePrivacy}
+                            disabled={togglingPrivacy}
+                          />
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 </>
               )}
             </div>
