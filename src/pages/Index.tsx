@@ -12,11 +12,9 @@ export default function Index() {
     </div>
   );
 
-  const handleSelect = (platform: string) => {
+  const handleSelect = (platform: string, authRoute: string) => {
     if (!user) {
-      // Store chosen platform, redirect to auth
-      sessionStorage.setItem('platform', platform);
-      navigate('/auth');
+      navigate(authRoute);
     } else {
       navigate(platform);
     }
@@ -30,7 +28,7 @@ export default function Index() {
       <div className="flex gap-6 w-full max-w-sm">
         {/* Instagram */}
         <button
-          onClick={() => handleSelect('/instagram')}
+          onClick={() => handleSelect('/instagram', '/auth')}
           className="flex-1 group relative overflow-hidden rounded-2xl border border-border bg-card p-6 flex flex-col items-center gap-4 hover:shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
         >
           <div className="h-16 w-16 rounded-2xl instagram-gradient flex items-center justify-center">
@@ -42,7 +40,7 @@ export default function Index() {
 
         {/* YouTube */}
         <button
-          onClick={() => handleSelect('/youtube')}
+          onClick={() => handleSelect('/youtube', '/youtube-auth')}
           className="flex-1 group relative overflow-hidden rounded-2xl border border-border bg-card p-6 flex flex-col items-center gap-4 hover:shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
         >
           <div className="h-16 w-16 rounded-2xl bg-destructive flex items-center justify-center">

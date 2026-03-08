@@ -131,7 +131,7 @@ export default function YouTube() {
       <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
     </div>
   );
-  if (!user) return <Navigate to="/auth" replace />;
+  if (!user) return <Navigate to="/youtube-auth" replace />;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
