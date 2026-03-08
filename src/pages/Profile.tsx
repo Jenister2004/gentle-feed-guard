@@ -187,6 +187,58 @@ export default function Profile() {
     }
   };
 
+  const togglePrivacy = async () => {
+    if (!user) return;
+    setTogglingPrivacy(true);
+    try {
+      const newValue = !isPrivate;
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_private: newValue })
+        .eq('user_id', user.id);
+      if (error) throw error;
+      setIsPrivate(newValue);
+      toast.success(newValue ? 'Account set to Private 🔒' : 'Account set to Public 🌐');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to update privacy');
+    } finally {
+      setTogglingPrivacy(false);
+    }
+  };
+
+  const acceptRequest = async (requestId: string, requesterId: string) => {
+    setProcessingRequest(requestId);
+    try {
+      // Create the follow relationship
+      await supabase.from('follows').insert({
+        follower_id: requesterId,
+        following_id: user!.id,
+      });
+      // Delete the request
+      await supabase.from('follow_requests').delete().eq('id', requestId);
+      setFollowRequests(prev => prev.filter(r => r.id !== requestId));
+      setFollowerCount(prev => prev + 1);
+      toast.success('Follow request accepted');
+    } catch {
+      toast.error('Failed to accept request');
+    } finally {
+      setProcessingRequest(null);
+    }
+  };
+
+  const rejectRequest = async (requestId: string) => {
+    setProcessingRequest(requestId);
+    try {
+      await supabase.from('follow_requests').delete().eq('id', requestId);
+      setFollowRequests(prev => prev.filter(r => r.id !== requestId));
+      toast.success('Follow request declined');
+    } catch {
+      toast.error('Failed to decline request');
+    } finally {
+      setProcessingRequest(null);
+    }
+  };
+
   if (loading) return <div className="flex min-h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
 
   return (
