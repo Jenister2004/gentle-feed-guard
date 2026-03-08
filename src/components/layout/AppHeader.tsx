@@ -4,7 +4,7 @@ import { Camera, Home, LogOut, User, AlertTriangle } from 'lucide-react';
 import CreatePost from '@/components/feed/CreatePost';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import InstagramLogo from '@/components/icons/InstagramLogo';
-import CreateStory from '@/components/stories/CreateStory';
+import CameraCapture from '@/components/camera/CameraCapture';
 
 export default function AppHeader() {
   const { user, profile, signOut } = useAuth();
