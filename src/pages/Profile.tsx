@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 import AppHeader from '@/components/layout/AppHeader';
 import AvatarUpload from '@/components/profile/AvatarUpload';
-import { Loader2, Pencil, Check, X, Grid3X3, Bookmark, UserSquare2, Settings, Plus, Heart, MessageCircle, Lock, Globe, UserCheck, UserX, Bell } from 'lucide-react';
+import { Loader2, Pencil, Check, X, Grid3X3, Bookmark, UserSquare2, Settings, Plus, Heart, MessageCircle, Lock, Globe, UserCheck, UserX, Bell, ArrowLeft } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -31,6 +32,7 @@ const HIGHLIGHT_ICONS = [
 
 export default function Profile() {
   const { user, profile } = useAuth();
+  const navigate = useNavigate();
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -243,8 +245,16 @@ export default function Profile() {
 
   return (
     <div className="min-h-screen bg-background animate-page-enter">
-      <AppHeader />
-      <main className="max-w-[935px] mx-auto px-4 pt-20 pb-8">
+      {/* Back button header */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-card border-b border-border">
+        <div className="max-w-lg mx-auto px-4 h-12 flex items-center">
+          <button onClick={() => navigate(-1)} className="p-1 hover:opacity-60 transition-opacity mr-3">
+            <ArrowLeft className="h-6 w-6" />
+          </button>
+          <span className="font-semibold text-base">{profile?.username || 'Profile'}</span>
+        </div>
+      </div>
+      <main className="max-w-[935px] mx-auto px-4 pt-16 pb-8">
 
         {/* === Profile Header Section === */}
         <div className="flex flex-col md:flex-row items-start gap-6 md:gap-16 mb-6 md:mb-10">
