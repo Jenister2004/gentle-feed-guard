@@ -40,7 +40,7 @@ export default function Index() {
 
         {/* YouTube */}
         <button
-          onClick={() => handleSelect('/youtube')}
+          onClick={() => handleSelect('/youtube', '/youtube-auth')}
           className="flex-1 group relative overflow-hidden rounded-2xl border border-border bg-card p-6 flex flex-col items-center gap-4 hover:shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
         >
           <div className="h-16 w-16 rounded-2xl bg-destructive flex items-center justify-center">
