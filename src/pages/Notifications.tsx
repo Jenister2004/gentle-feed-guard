@@ -177,9 +177,16 @@ export default function Notifications() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-background pt-14 pb-20">
-      <div className="max-w-lg mx-auto px-4">
-        <h1 className="text-lg font-bold py-3">Notifications</h1>
+    <div className="min-h-screen bg-background pb-20">
+      <div className="fixed top-0 left-0 right-0 z-50 bg-card border-b border-border">
+        <div className="max-w-lg mx-auto px-4 h-12 flex items-center">
+          <button onClick={() => navigate(-1)} className="p-1 hover:opacity-60 transition-opacity mr-3">
+            <ArrowLeft className="h-6 w-6" />
+          </button>
+          <span className="font-semibold text-base">Notifications</span>
+        </div>
+      </div>
+      <div className="max-w-lg mx-auto px-4 pt-14">
 
         {loading ? (
           <div className="flex justify-center py-12">
