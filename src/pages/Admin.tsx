@@ -100,6 +100,19 @@ export default function Admin() {
     else toast.error('Failed to delete comment');
   };
 
+  const adminDeletePost = async (postId: string, imageUrl: string) => {
+    try {
+      const path = imageUrl.split('/post-images/')[1];
+      if (path) await supabase.storage.from('post-images').remove([path]);
+      const { error } = await supabase.from('posts').delete().eq('id', postId);
+      if (error) throw error;
+      toast.success('Post deleted');
+      loadPosts();
+    } catch {
+      toast.error('Failed to delete post');
+    }
+  };
+
   if (authLoading) return <div className="flex min-h-screen items-center justify-center bg-[#0a0a0a]"><Loader2 className="h-8 w-8 animate-spin text-green-500" /></div>;
   if (!isAdmin) return <Navigate to="/" replace />;
   if (loading) return <div className="flex min-h-screen items-center justify-center bg-[#0a0a0a]"><Loader2 className="h-8 w-8 animate-spin text-green-500" /></div>;
