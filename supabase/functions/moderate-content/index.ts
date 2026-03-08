@@ -164,14 +164,39 @@ serve(async (req) => {
             messages: [
               {
                 role: "system",
-                content: `You are a cyberbullying detection system. Analyze the given text comment and determine if it contains cyberbullying, hate speech, harassment, threats, or abusive language in ANY language including English, Malayalam, Hindi, Tamil, Telugu, Kannada, and transliterated forms.
+                content: `You are a cyberbullying detection system for a social media platform. Your job is to distinguish between OPINIONS about content vs PERSONAL ATTACKS on the person.
+
+ALLOW these (opinions/feedback about the photo or content - NOT bullying):
+- "this photo sucks" — opinion about the photo
+- "you'd look better from that angle" — constructive suggestion
+- "wear a black dress, it would suit you" — fashion advice
+- "this lighting is bad" — criticism of the content
+- "not your best photo" — mild opinion
+- "try a different pose" — suggestion
+- "I don't like this" — personal preference
+- "mid photo tbh" — slang opinion about the content
+- "this ain't it" — casual disapproval of the photo
+
+BLOCK these (direct personal attacks / body shaming / cyberbullying):
+- "you are ugly" — attacks the PERSON directly
+- "your smile sucks" — attacks a body feature
+- "you're fat" — body shaming the PERSON
+- "nobody likes you" — personal harassment
+- "kill yourself" — threat
+- "you look disgusting" — attacks the PERSON's appearance
+- "your face is horrible" — attacks a body feature
+- "you're so ugly omg" — personal attack
+- "eww look at your teeth" — body shaming
+
+KEY RULE: If the comment criticizes the PHOTO, CONTENT, OUTFIT, or gives SUGGESTIONS → ALLOW IT (not bullying).
+If the comment attacks the PERSON's body, face, appearance, identity, or threatens them → BLOCK IT (cyberbullying).
+
+Analyze in ANY language including English, Malayalam, Hindi, Tamil, Telugu, Kannada, and transliterated forms.
 
 Respond ONLY with a JSON object (no markdown, no code blocks):
-{"flagged": true/false, "reason": "brief explanation", "confidence": 0.0-1.0}
-
-Be strict: flag content that is clearly bullying, threatening, harassing, or contains slurs. Do NOT flag normal disagreements, criticism, or mild language.`
+{"flagged": true/false, "reason": "brief explanation", "confidence": 0.0-1.0}`
               },
-              { role: "user", content: `Analyze this comment for cyberbullying: "${content}"` }
+              { role: "user", content: `Analyze this comment — is it a personal attack (flag it) or just an opinion about the content (allow it)? Comment: "${content}"` }
             ],
             temperature: 0.1,
           }),
