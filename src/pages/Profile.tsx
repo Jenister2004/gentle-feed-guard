@@ -280,7 +280,10 @@ export default function Profile() {
                   </Button>
                 </div>
               ) : (
-                <h1 className="text-xl font-normal tracking-tight">{profile?.username}</h1>
+                <h1 className="text-xl font-normal tracking-tight flex items-center gap-1.5">
+                  {profile?.username}
+                  {isPrivate && <Lock className="h-4 w-4 text-muted-foreground" />}
+                </h1>
               )}
 
               {!editingUsername && (
