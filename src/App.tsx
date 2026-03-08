@@ -16,6 +16,7 @@ import Reels from "./pages/Reels";
 import Explore from "./pages/Explore";
 import Notifications from "./pages/Notifications";
 import YouTube from "./pages/YouTube";
+import YouTubeAuth from "./pages/YouTubeAuth";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
