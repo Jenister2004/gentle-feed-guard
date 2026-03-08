@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Plus, ImagePlus, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-export default function CreateStory({ onCreated }: { onCreated: () => void }) {
+export default function CreateStory({ onCreated, triggerMode = 'bar' }: { onCreated: () => void; triggerMode?: 'bar' | 'icon' }) {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
