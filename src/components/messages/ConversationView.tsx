@@ -127,6 +127,23 @@ export default function ConversationView({ conversationId, otherUser, onBack }: 
   const sendMessage = async (content: string, type = 'text', mediaUrl?: string) => {
     if (!user) return;
     setSending(true);
+
+    // Moderate text messages for bullying/inappropriate content
+    if (type === 'text' && content.trim()) {
+      try {
+        const { data: modResult } = await supabase.functions.invoke('moderate-content', {
+          body: { type: 'text', content, postId: conversationId },
+        });
+        if (modResult?.flagged) {
+          toast.error(`Message blocked: ${modResult.reason}`);
+          setSending(false);
+          return;
+        }
+      } catch (err) {
+        console.error('Moderation check failed:', err);
+      }
+    }
+
     const { error } = await supabase.from('messages').insert({
       conversation_id: conversationId,
       sender_id: user.id,
