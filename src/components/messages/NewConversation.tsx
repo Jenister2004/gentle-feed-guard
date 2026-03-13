@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { X, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { toast } from 'sonner';
 
 interface NewConversationProps {
   onClose: () => void;
@@ -34,47 +35,72 @@ export default function NewConversation({ onClose, onConversationCreated }: NewC
     if (!user || creating) return;
     setCreating(true);
 
-    // Check if conversation already exists
-    const { data: myConvs } = await supabase
-      .from('conversation_participants')
-      .select('conversation_id')
-      .eq('user_id', user.id);
-
-    if (myConvs && myConvs.length > 0) {
-      const convIds = myConvs.map(c => c.conversation_id);
-      const { data: otherConvs } = await supabase
+    try {
+      // Check if conversation already exists
+      const { data: myConvs, error: myConvsErr } = await supabase
         .from('conversation_participants')
         .select('conversation_id')
-        .eq('user_id', otherUser.user_id)
-        .in('conversation_id', convIds);
+        .eq('user_id', user.id);
 
-      if (otherConvs && otherConvs.length > 0) {
-        setCreating(false);
-        onConversationCreated(otherConvs[0].conversation_id, otherUser);
+      if (myConvsErr) {
+        toast.error('Unable to load conversations');
         return;
       }
-    }
 
-    // Create new conversation
-    const { data: conv, error: convErr } = await supabase
-      .from('conversations')
-      .insert({})
-      .select('id')
-      .single();
+      if (myConvs && myConvs.length > 0) {
+        const convIds = myConvs.map(c => c.conversation_id);
+        const { data: otherConvs, error: otherConvsErr } = await supabase
+          .from('conversation_participants')
+          .select('conversation_id')
+          .eq('user_id', otherUser.user_id)
+          .in('conversation_id', convIds);
 
-    if (convErr || !conv) {
+        if (otherConvsErr) {
+          toast.error('Unable to start conversation');
+          return;
+        }
+
+        if (otherConvs && otherConvs.length > 0) {
+          onConversationCreated(otherConvs[0].conversation_id, otherUser);
+          return;
+        }
+      }
+
+      // Create new conversation
+      const { data: conv, error: convErr } = await supabase
+        .from('conversations')
+        .insert({})
+        .select('id')
+        .single();
+
+      if (convErr || !conv) {
+        toast.error('Unable to create conversation');
+        return;
+      }
+
+      // Add current user first, then target user
+      const { error: selfParticipantErr } = await supabase
+        .from('conversation_participants')
+        .insert({ conversation_id: conv.id, user_id: user.id });
+
+      if (selfParticipantErr) {
+        toast.error('Unable to create conversation participants');
+        return;
+      }
+
+      const { error: otherParticipantErr } = await supabase
+        .from('conversation_participants')
+        .insert({ conversation_id: conv.id, user_id: otherUser.user_id });
+
+      if (otherParticipantErr) {
+        toast.error('Unable to add user to conversation');
+        return;
+      }
+
+      onConversationCreated(conv.id, otherUser);
+    } finally {
       setCreating(false);
-      return;
     }
-
-    // Add both participants
-    await supabase.from('conversation_participants').insert([
-      { conversation_id: conv.id, user_id: user.id },
-      { conversation_id: conv.id, user_id: otherUser.user_id },
-    ]);
-
-    setCreating(false);
-    onConversationCreated(conv.id, otherUser);
   };
 
   return (
