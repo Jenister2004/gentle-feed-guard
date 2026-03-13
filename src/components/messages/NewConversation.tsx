@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { X, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { toast } from 'sonner';
 
 interface NewConversationProps {
   onClose: () => void;
