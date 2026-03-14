@@ -19,6 +19,7 @@ import YouTube from "./pages/YouTube";
 import YouTubeAuth from "./pages/YouTubeAuth";
 import YouTubeProfile from "./pages/YouTubeProfile";
 import NotFound from "./pages/NotFound";
+import Presentation from "./pages/Presentation";
 
 const queryClient = new QueryClient();
 
