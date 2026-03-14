@@ -19,6 +19,7 @@ import YouTube from "./pages/YouTube";
 import YouTubeAuth from "./pages/YouTubeAuth";
 import YouTubeProfile from "./pages/YouTubeProfile";
 import NotFound from "./pages/NotFound";
+import Presentation from "./pages/Presentation";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,7 @@ const App = () => (
             <Route path="/youtube" element={<YouTube />} />
             <Route path="/youtube-auth" element={<YouTubeAuth />} />
             <Route path="/youtube-profile" element={<YouTubeProfile />} />
+            <Route path="/presentation" element={<Presentation />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
