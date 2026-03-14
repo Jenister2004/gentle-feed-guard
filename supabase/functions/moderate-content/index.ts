@@ -250,13 +250,27 @@ ALLOW these (opinions/feedback about the photo or content):
 - "mid photo tbh" — slang opinion
 - "this ain't it" — casual disapproval
 
+ALLOW these (supportive / helpful mentions of body / appearance):
+- "if you want to lose weight I can help you" — offering help = ALLOW
+- "try this workout, it helped me get fit" — sharing advice = ALLOW
+- "you should try this diet, it's healthy" — health suggestion = ALLOW
+- "I think you'd look great if you tried this hairstyle" — supportive suggestion = ALLOW
+- "have you tried yoga? it really helps" — wellness advice = ALLOW
+
 BLOCK these (direct personal attacks / body shaming / cyberbullying):
 - "you are ugly" — attacks the PERSON directly
-- "you're fat" — body shaming
+- "you're fat" — body shaming (insult, no help offered)
+- "you're so fat it's disgusting" — body shaming attack
 - "nobody likes you" — personal harassment
 - "kill yourself" — threat
 - "you look disgusting" — attacks appearance
 - "eww look at your teeth" — body shaming
+- "lose some weight fatty" — shaming, not helping
+
+=== CRITICAL DISTINCTION ===
+Messages that MENTION weight/body but OFFER HELP or SUPPORT → ALLOW
+Messages that MOCK, INSULT, or SHAME someone's weight/body → BLOCK
+Intent matters: "I can help you lose weight" = supportive. "You need to lose weight, ugly" = attack.
 
 === KEY RULES ===
 1. ALWAYS analyze text + emojis TOGETHER as one message — never judge emojis in isolation
