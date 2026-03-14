@@ -82,7 +82,7 @@ export default function NewConversation({ onClose, onConversationCreated }: NewC
       // Add current user first, then target user
       const { error: selfParticipantErr } = await supabase
         .from('conversation_participants')
-        .insert({ conversation_id: conv.id, user_id: user.id });
+        .insert({ conversation_id: convId, user_id: user.id });
 
       if (selfParticipantErr) {
         toast.error('Unable to create conversation participants');
@@ -91,14 +91,14 @@ export default function NewConversation({ onClose, onConversationCreated }: NewC
 
       const { error: otherParticipantErr } = await supabase
         .from('conversation_participants')
-        .insert({ conversation_id: conv.id, user_id: otherUser.user_id });
+        .insert({ conversation_id: convId, user_id: otherUser.user_id });
 
       if (otherParticipantErr) {
         toast.error('Unable to add user to conversation');
         return;
       }
 
-      onConversationCreated(conv.id, otherUser);
+      onConversationCreated(convId, otherUser);
     } finally {
       setCreating(false);
     }
