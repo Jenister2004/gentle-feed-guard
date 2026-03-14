@@ -66,14 +66,15 @@ export default function NewConversation({ onClose, onConversationCreated }: NewC
         }
       }
 
-      // Create new conversation
-      const { data: conv, error: convErr } = await supabase
+      // Create new conversation - generate ID client-side since SELECT policy
+      // requires participant membership which doesn't exist yet at insert time
+      const convId = crypto.randomUUID();
+      const { error: convErr } = await supabase
         .from('conversations')
-        .insert({})
-        .select('id')
-        .single();
+        .insert({ id: convId });
 
-      if (convErr || !conv) {
+      if (convErr) {
+        console.error('Conv create error:', convErr);
         toast.error('Unable to create conversation');
         return;
       }
