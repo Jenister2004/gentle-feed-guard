@@ -429,7 +429,7 @@ export default function Profile() {
             {/* Row 2: Stats */}
             <div className="flex gap-8 mb-4">
               <div className="text-sm">
-                <span className="font-semibold">{posts.length}</span>{' '}
+                <span className="font-semibold">{visiblePosts.length}</span>{' '}
                 <span className="text-foreground">posts</span>
               </div>
               <div className="text-sm cursor-pointer hover:opacity-70">
