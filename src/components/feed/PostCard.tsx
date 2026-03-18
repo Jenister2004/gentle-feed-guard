@@ -24,6 +24,7 @@ interface Post {
   image_url: string;
   caption: string | null;
   created_at: string;
+  updated_at?: string;
   is_flagged: boolean;
 }
 
