@@ -61,7 +61,12 @@ export default function Admin() {
 
   const loadPosts = async () => {
     const { data } = await supabase.from('posts').select('*').order('created_at', { ascending: false });
-    setPosts(data || []);
+    const nextPosts = data || [];
+    setPosts(nextPosts);
+    setHiddenMissingPostIds(prev => {
+      const existingIds = new Set(nextPosts.map(p => p.id));
+      return new Set([...prev].filter(id => existingIds.has(id)));
+    });
   };
 
   const loadComments = async () => {
