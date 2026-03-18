@@ -70,7 +70,7 @@ export default function Feed() {
           </div>
         ) : (
           posts.map(post => (
-            <PostCard key={post.id} post={post} posterUsername={profiles[post.user_id]?.username || 'unknown'} posterAvatarUrl={profiles[post.user_id]?.avatar_url} />
+            <PostCard key={post.id} post={post} posterUsername={profiles[post.user_id]?.username || 'unknown'} posterAvatarUrl={profiles[post.user_id]?.avatar_url} onDeleted={loadPosts} />
           ))
         )}
       </main>
