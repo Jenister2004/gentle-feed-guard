@@ -404,9 +404,21 @@ export default function Admin() {
               <Image className="h-3 w-3" /> IG_INTEL_FEED // Instagram posts
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 p-3">
-              {posts.map(p => (
+              {visiblePosts.map(p => (
                 <div key={p.id} className="relative aspect-square rounded overflow-hidden group border border-green-500/20">
-                  <img src={p.image_url} alt="" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" loading="lazy" />
+                  <img
+                    src={`${p.image_url}${p.image_url.includes('?') ? '&' : '?'}v=${p.updated_at || p.created_at || p.id}`}
+                    alt=""
+                    className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                    loading="lazy"
+                    onError={() => {
+                      setHiddenMissingPostIds(prev => {
+                        const next = new Set(prev);
+                        next.add(p.id);
+                        return next;
+                      });
+                    }}
+                  />
                   {p.is_flagged && (
                     <div className="absolute top-1 right-1">
                       <span className="bg-red-500/80 text-red-100 text-[10px] px-1.5 py-0.5 rounded font-mono">[FLAGGED]</span>
@@ -422,6 +434,7 @@ export default function Admin() {
                   </div>
                 </div>
               ))}
+              {visiblePosts.length === 0 && <p className="col-span-full text-green-500/30 text-center py-8 text-sm">[ NO VALID POSTS TO DISPLAY ]</p>}
             </div>
           </div>
         )}

@@ -253,7 +253,13 @@ export default function PostCard({ post, posterUsername, posterAvatarUrl, onDele
 
       {/* Image — double tap to like */}
       <div className="relative aspect-square bg-muted" onClick={handleDoubleTap}>
-        <img src={post.image_url} alt={post.caption || 'Post'} className="w-full h-full object-cover" loading="lazy" />
+        <img
+          src={imageSrc}
+          alt={post.caption || 'Post'}
+          className="w-full h-full object-cover"
+          loading="lazy"
+          onError={() => setImageUnavailable(true)}
+        />
         {/* Double-tap heart animation */}
         {doubleTapHeart && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">

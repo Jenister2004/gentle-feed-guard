@@ -551,13 +551,20 @@ export default function Profile() {
         {activeTab === 'posts' && (
           <div className="pt-1">
             <div className="grid grid-cols-3 gap-1">
-              {posts.map(post => (
+              {visiblePosts.map(post => (
                 <div key={post.id} className="aspect-square relative group cursor-pointer overflow-hidden">
                   <img
-                    src={post.image_url}
+                    src={`${post.image_url}${post.image_url.includes('?') ? '&' : '?'}v=${post.updated_at || post.created_at || post.id}`}
                     alt={post.caption || ''}
                     className="w-full h-full object-cover transition-opacity group-hover:opacity-80"
                     loading="lazy"
+                    onError={() => {
+                      setHiddenMissingPostIds(prev => {
+                        const next = new Set(prev);
+                        next.add(post.id);
+                        return next;
+                      });
+                    }}
                   />
                   {/* Hover overlay with like/comment counts */}
                   <div className="absolute inset-0 bg-foreground/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-6">
@@ -571,7 +578,7 @@ export default function Profile() {
                 </div>
               ))}
             </div>
-            {posts.length === 0 && (
+            {visiblePosts.length === 0 && (
               <div className="text-center py-16">
                 <div className="w-16 h-16 mx-auto rounded-full border-2 border-foreground flex items-center justify-center mb-4">
                   <Grid3X3 className="h-7 w-7" />
