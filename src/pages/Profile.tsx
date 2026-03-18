@@ -33,6 +33,7 @@ export default function Profile() {
   const [followerCount, setFollowerCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
   const [activeTab, setActiveTab] = useState<ProfileTab>('posts');
+  const [hiddenMissingPostIds, setHiddenMissingPostIds] = useState<Set<string>>(new Set());
 
   // Edit states
   const [editingUsername, setEditingUsername] = useState(false);
@@ -83,12 +84,27 @@ export default function Profile() {
     }
   };
 
+  const loadUserPosts = async (userId: string) => {
+    const { data } = await supabase.from('posts').select('*').eq('user_id', userId).order('created_at', { ascending: false });
+    const nextPosts = data || [];
+    setPosts(nextPosts);
+    setHiddenMissingPostIds(prev => {
+      const existingIds = new Set(nextPosts.map(post => post.id));
+      return new Set([...prev].filter(id => existingIds.has(id)));
+    });
+    setLoading(false);
+  };
+
   useEffect(() => {
     if (!user) return;
     setAvatarUrl(profile?.avatar_url || null);
 
-    supabase.from('posts').select('*').eq('user_id', user.id).order('created_at', { ascending: false })
-      .then(({ data }) => { setPosts(data || []); setLoading(false); });
+    loadUserPosts(user.id);
+
+    const postsChannel = supabase
+      .channel(`profile-posts-${user.id}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'posts', filter: `user_id=eq.${user.id}` }, () => loadUserPosts(user.id))
+      .subscribe();
 
     supabase.from('follows').select('id', { count: 'exact', head: true }).eq('following_id', user.id)
       .then(({ count }) => setFollowerCount(count || 0));
@@ -100,6 +116,10 @@ export default function Profile() {
       .then(({ data }) => setIsPrivate(data?.is_private ?? false));
 
     loadFollowRequests();
+
+    return () => {
+      supabase.removeChannel(postsChannel);
+    };
   }, [user, profile]);
 
   const handleEditUsername = () => {
@@ -234,6 +254,8 @@ export default function Profile() {
       setProcessingRequest(null);
     }
   };
+
+  const visiblePosts = posts.filter(post => !hiddenMissingPostIds.has(post.id));
 
   if (loading) return <div className="flex min-h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
 
@@ -407,7 +429,7 @@ export default function Profile() {
             {/* Row 2: Stats */}
             <div className="flex gap-8 mb-4">
               <div className="text-sm">
-                <span className="font-semibold">{posts.length}</span>{' '}
+                <span className="font-semibold">{visiblePosts.length}</span>{' '}
                 <span className="text-foreground">posts</span>
               </div>
               <div className="text-sm cursor-pointer hover:opacity-70">
@@ -529,13 +551,20 @@ export default function Profile() {
         {activeTab === 'posts' && (
           <div className="pt-1">
             <div className="grid grid-cols-3 gap-1">
-              {posts.map(post => (
+              {visiblePosts.map(post => (
                 <div key={post.id} className="aspect-square relative group cursor-pointer overflow-hidden">
                   <img
-                    src={post.image_url}
+                    src={`${post.image_url}${post.image_url.includes('?') ? '&' : '?'}v=${post.updated_at || post.created_at || post.id}`}
                     alt={post.caption || ''}
                     className="w-full h-full object-cover transition-opacity group-hover:opacity-80"
                     loading="lazy"
+                    onError={() => {
+                      setHiddenMissingPostIds(prev => {
+                        const next = new Set(prev);
+                        next.add(post.id);
+                        return next;
+                      });
+                    }}
                   />
                   {/* Hover overlay with like/comment counts */}
                   <div className="absolute inset-0 bg-foreground/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-6">
@@ -549,7 +578,7 @@ export default function Profile() {
                 </div>
               ))}
             </div>
-            {posts.length === 0 && (
+            {visiblePosts.length === 0 && (
               <div className="text-center py-16">
                 <div className="w-16 h-16 mx-auto rounded-full border-2 border-foreground flex items-center justify-center mb-4">
                   <Grid3X3 className="h-7 w-7" />

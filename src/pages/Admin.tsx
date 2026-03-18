@@ -21,6 +21,7 @@ export default function Admin() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('flagged');
   const [platform, setPlatform] = useState<'all' | 'instagram' | 'youtube'>('all');
+  const [hiddenMissingPostIds, setHiddenMissingPostIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (!isAdmin) return;
@@ -60,7 +61,12 @@ export default function Admin() {
 
   const loadPosts = async () => {
     const { data } = await supabase.from('posts').select('*').order('created_at', { ascending: false });
-    setPosts(data || []);
+    const nextPosts = data || [];
+    setPosts(nextPosts);
+    setHiddenMissingPostIds(prev => {
+      const existingIds = new Set(nextPosts.map(p => p.id));
+      return new Set([...prev].filter(id => existingIds.has(id)));
+    });
   };
 
   const loadComments = async () => {
@@ -136,6 +142,12 @@ export default function Admin() {
       if (path) await supabase.storage.from('post-images').remove([path]);
       const { error } = await supabase.from('posts').delete().eq('id', postId);
       if (error) throw error;
+      setPosts(prev => prev.filter(p => p.id !== postId));
+      setHiddenMissingPostIds(prev => {
+        const next = new Set(prev);
+        next.delete(postId);
+        return next;
+      });
       toast.success('Post deleted');
       loadPosts();
     } catch { toast.error('Failed to delete post'); }
@@ -162,6 +174,8 @@ export default function Admin() {
     { id: 'yt_videos', label: 'YT_VIDEOS', icon: Video, count: ytVideos.length },
     { id: 'yt_comments', label: 'YT_COMMS', icon: Play, count: ytComments.length },
   ];
+
+  const visiblePosts = posts.filter(p => !hiddenMissingPostIds.has(p.id));
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-green-400 font-mono">
@@ -390,9 +404,21 @@ export default function Admin() {
               <Image className="h-3 w-3" /> IG_INTEL_FEED // Instagram posts
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 p-3">
-              {posts.map(p => (
+              {visiblePosts.map(p => (
                 <div key={p.id} className="relative aspect-square rounded overflow-hidden group border border-green-500/20">
-                  <img src={p.image_url} alt="" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" loading="lazy" />
+                  <img
+                    src={`${p.image_url}${p.image_url.includes('?') ? '&' : '?'}v=${p.updated_at || p.created_at || p.id}`}
+                    alt=""
+                    className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                    loading="lazy"
+                    onError={() => {
+                      setHiddenMissingPostIds(prev => {
+                        const next = new Set(prev);
+                        next.add(p.id);
+                        return next;
+                      });
+                    }}
+                  />
                   {p.is_flagged && (
                     <div className="absolute top-1 right-1">
                       <span className="bg-red-500/80 text-red-100 text-[10px] px-1.5 py-0.5 rounded font-mono">[FLAGGED]</span>
@@ -408,6 +434,7 @@ export default function Admin() {
                   </div>
                 </div>
               ))}
+              {visiblePosts.length === 0 && <p className="col-span-full text-green-500/30 text-center py-8 text-sm">[ NO VALID POSTS TO DISPLAY ]</p>}
             </div>
           </div>
         )}
