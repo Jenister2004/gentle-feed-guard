@@ -175,6 +175,8 @@ export default function Admin() {
     { id: 'yt_comments', label: 'YT_COMMS', icon: Play, count: ytComments.length },
   ];
 
+  const visiblePosts = posts.filter(p => !hiddenMissingPostIds.has(p.id));
+
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-green-400 font-mono">
       {/* Top Bar */}
