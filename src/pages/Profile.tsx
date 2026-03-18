@@ -84,12 +84,27 @@ export default function Profile() {
     }
   };
 
+  const loadUserPosts = async (userId: string) => {
+    const { data } = await supabase.from('posts').select('*').eq('user_id', userId).order('created_at', { ascending: false });
+    const nextPosts = data || [];
+    setPosts(nextPosts);
+    setHiddenMissingPostIds(prev => {
+      const existingIds = new Set(nextPosts.map(post => post.id));
+      return new Set([...prev].filter(id => existingIds.has(id)));
+    });
+    setLoading(false);
+  };
+
   useEffect(() => {
     if (!user) return;
     setAvatarUrl(profile?.avatar_url || null);
 
-    supabase.from('posts').select('*').eq('user_id', user.id).order('created_at', { ascending: false })
-      .then(({ data }) => { setPosts(data || []); setLoading(false); });
+    loadUserPosts(user.id);
+
+    const postsChannel = supabase
+      .channel(`profile-posts-${user.id}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'posts', filter: `user_id=eq.${user.id}` }, () => loadUserPosts(user.id))
+      .subscribe();
 
     supabase.from('follows').select('id', { count: 'exact', head: true }).eq('following_id', user.id)
       .then(({ count }) => setFollowerCount(count || 0));
@@ -101,6 +116,10 @@ export default function Profile() {
       .then(({ data }) => setIsPrivate(data?.is_private ?? false));
 
     loadFollowRequests();
+
+    return () => {
+      supabase.removeChannel(postsChannel);
+    };
   }, [user, profile]);
 
   const handleEditUsername = () => {
