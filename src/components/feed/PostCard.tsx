@@ -73,7 +73,6 @@ export default function PostCard({ post, posterUsername, posterAvatarUrl, onDele
   };
 
   const deletePost = async () => {
-    if (!confirm('Are you sure you want to delete this post?')) return;
     try {
       const path = post.image_url.split('/post-images/')[1];
       if (path) await supabase.storage.from('post-images').remove([path]);
