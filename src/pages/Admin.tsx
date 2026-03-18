@@ -142,6 +142,12 @@ export default function Admin() {
       if (path) await supabase.storage.from('post-images').remove([path]);
       const { error } = await supabase.from('posts').delete().eq('id', postId);
       if (error) throw error;
+      setPosts(prev => prev.filter(p => p.id !== postId));
+      setHiddenMissingPostIds(prev => {
+        const next = new Set(prev);
+        next.delete(postId);
+        return next;
+      });
       toast.success('Post deleted');
       loadPosts();
     } catch { toast.error('Failed to delete post'); }
