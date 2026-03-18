@@ -33,6 +33,7 @@ export default function Profile() {
   const [followerCount, setFollowerCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
   const [activeTab, setActiveTab] = useState<ProfileTab>('posts');
+  const [hiddenMissingPostIds, setHiddenMissingPostIds] = useState<Set<string>>(new Set());
 
   // Edit states
   const [editingUsername, setEditingUsername] = useState(false);

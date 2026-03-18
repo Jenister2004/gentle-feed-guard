@@ -21,6 +21,7 @@ export default function Admin() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('flagged');
   const [platform, setPlatform] = useState<'all' | 'instagram' | 'youtube'>('all');
+  const [hiddenMissingPostIds, setHiddenMissingPostIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (!isAdmin) return;

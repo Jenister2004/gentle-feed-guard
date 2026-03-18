@@ -57,8 +57,10 @@ export default function PostCard({ post, posterUsername, posterAvatarUrl, onDele
   const [bookmarked, setBookmarked] = useState(false);
   const [doubleTapHeart, setDoubleTapHeart] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
+  const [imageUnavailable, setImageUnavailable] = useState(false);
 
   const canDelete = user && (user.id === post.user_id || isAdmin);
+  const imageSrc = `${post.image_url}${post.image_url.includes('?') ? '&' : '?'}v=${post.updated_at || post.created_at || post.id}`;
 
   // Double-tap to like
   let lastTap = 0;
@@ -97,7 +99,7 @@ export default function PostCard({ post, posterUsername, posterAvatarUrl, onDele
     loadComments();
   }, [showComments]);
 
-  if (deleted) return null;
+  if (deleted || imageUnavailable) return null;
 
   const loadComments = async () => {
     const { data } = await supabase
